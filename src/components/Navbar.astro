@@ -1,0 +1,57 @@
+---
+import { siteConfig } from "../config";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const basePath = base ? path.replace(base, "") || "/" : path;
+
+const links = [
+	{ href: `${base}/`, label: "总览", match: "/" },
+	{ href: `${base}/ships`, label: "舰船", match: "/ships" },
+];
+---
+
+<header class="nav">
+	<div class="container nav-inner">
+		<a class="brand" href={`${base}/`}>
+			<span class="brand-mark">WS</span>
+			<span class="brand-text">
+				{siteConfig.title}
+				<small>WOWS PROFILE</small>
+			</span>
+		</a>
+
+		<nav class="nav-links" aria-label="主导航">
+			{
+				links.map((l) => (
+					<a
+						class="nav-link"
+						href={l.href}
+						aria-current={basePath === l.match ? "page" : undefined}
+					>
+						{l.label}
+					</a>
+				))
+			}
+		</nav>
+
+		<div class="nav-right">
+			{
+				siteConfig.blogUrl && (
+					<a class="nav-link" href={siteConfig.blogUrl} rel="noopener">
+						博客
+					</a>
+				)
+			}
+			<button class="icon-btn" id="theme-toggle" type="button" aria-label="切换深浅色">
+				<svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+					<circle cx="12" cy="12" r="4.2"></circle>
+					<path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"></path>
+				</svg>
+				<svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+					<path d="M20.4 14.6A8.6 8.6 0 1 1 9.4 3.6a7 7 0 0 0 11 11Z"></path>
+				</svg>
+			</button>
+		</div>
+	</div>
+</header>

@@ -1,0 +1,281 @@
+---
+import Base from "../layouts/Base.astro";
+import ShipCard from "../components/ShipCard.astro";
+import profile from "../data/profile.json";
+import ships from "../data/ships.json";
+import meta from "../data/meta.json";
+import { pct, num, compact, date, relative, typeVar } from "../utils/format";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const p = profile.pvp;
+
+// —— 舰种环形图 ——
+const R = 52;
+const C = 2 * Math.PI * R;
+const typeTotal = profile.byType.reduce((s, t) => s + t.battles, 0) || 1;
+let acc = 0;
+const segments = profile.byType.map((t) => {
+	const full = (t.battles / typeTotal) * C;
+	const dash = Math.max(0, full - 2.5);
+	const seg = {
+		...t,
+		color: typeVar(t.key),
+		dash,
+		rest: C - dash,
+		offset: -acc,
+		share: t.battles / typeTotal,
+	};
+	acc += full;
+	return seg;
+});
+
+// —— 等级条形图 ——
+const maxTierBattles = Math.max(...profile.byTier.map((t) => t.battles), 1);
+
+const topShips = ships.slice(0, 6);
+const recent = [...ships].sort((a, b) => b.lastBattleAt - a.lastBattleAt).slice(0, 5);
+
+const records = [
+	{ label: "单场最高伤害", value: num(p.maxDamage), icon: "damage" },
+	{ label: "单场最多击杀", value: `${p.maxFrags} 艘`, icon: "kill" },
+	{ label: "单场最高经验", value: num(p.maxXp), icon: "xp" },
+	{ label: "单场击落飞机", value: num(p.maxPlanesKilled), icon: "plane" },
+];
+
+const RECORD_ICONS: Record<string, string> = {
+	damage: "M12 2.8 4.6 6.4v5.2c0 4.4 3.1 8.4 7.4 9.6 4.3-1.2 7.4-5.2 7.4-9.6V6.4L12 2.8Z",
+	kill: "M12 3v3M12 18v3M3 12h3M18 12h3M12 7.5A4.5 4.5 0 1 0 12 16.5a4.5 4.5 0 0 0 0-9Z",
+	xp: "M12 3.2 14.9 9l6.4.9-4.6 4.5 1.1 6.4L12 17.8 6.2 20.8l1.1-6.4L2.7 9.9 9.1 9 12 3.2Z",
+	plane: "M2.5 13.2 12 10l9.5 3.2v1.6l-7.5-.6-1.4 4.3 2.4 1.6v1.4L12 20.4l-3 1.1v-1.4l2.4-1.6-1.4-4.3-7.5.6v-1.6Z",
+};
+---
+
+<Base>
+	<section class="hero">
+		<svg class="hero-waves" viewBox="0 0 1440 180" preserveAspectRatio="none" aria-hidden="true">
+			<path
+				d="M0 92C180 32 360 32 540 92s360 60 540 0 300-56 360-26V180H0Z"
+				fill="currentColor"
+				opacity=".11"></path>
+			<path
+				d="M0 126C200 76 400 106 600 126s400 34 600-16 200-24 240-4V180H0Z"
+				fill="currentColor"
+				opacity=".07"></path>
+		</svg>
+
+		<div class="container hero-inner">
+			<div class="reveal">
+				<span class="hero-badge">
+					<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+						<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"></path>
+					</svg>
+					{profile.realmLabel} · {profile.realm.toUpperCase()}
+				</span>
+				<h1>{profile.nickname}</h1>
+				<p class="hero-sub">
+					<span>UID {profile.accountId}</span>
+					<span class="dot-sep"></span>
+					<span>{date(profile.createdAt)} 入港</span>
+					<span class="dot-sep"></span>
+					<span>最后出港 {relative(profile.lastBattleAt)}</span>
+				</p>
+			</div>
+
+			<div class="hero-metrics reveal">
+				<div class="hero-metric">
+					<div class="value">Lv.{profile.levelingTier}</div>
+					<div class="label">Commander</div>
+				</div>
+				<div class="hero-metric">
+					<div class="value">{profile.shipCount}</div>
+					<div class="label">Ships</div>
+				</div>
+				<div class="hero-metric">
+					<div class="value">{compact(p.maxDamage)}</div>
+					<div class="label">Max Damage</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div class="container">
+		<!-- 核心指标 -->
+		<div class="grid-metrics">
+			{
+				[
+					{ label: "总场次", value: num(p.battles), unit: "场", foot: `胜 ${num(p.wins)} · 负 ${num(p.losses)}` },
+					{ label: "胜率", value: pct(p.winrate), unit: "", foot: `${num(p.wins)} 场胜利` },
+					{ label: "场均伤害", value: num(p.avgDamage), unit: "", foot: `累计 ${compact(p.damage)}` },
+					{ label: "场均击杀", value: p.avgFrags.toFixed(2), unit: "", foot: `K/D ${p.kd.toFixed(2)}` },
+					{ label: "生存率", value: pct(p.survival), unit: "", foot: `${num(p.frags)} 次击杀` },
+					{ label: "场均经验", value: num(p.avgXp), unit: "", foot: `命中率 ${pct(p.hitRate)}` },
+				].map((m, i) => (
+					<div class="card card-hover metric reveal" style={`animation-delay:${i * 55}ms`}>
+						<span class="metric-label">{m.label}</span>
+						<span class="metric-value">
+							{m.value}
+							{m.unit && <span class="unit">{m.unit}</span>}
+						</span>
+						<span class="metric-foot">{m.foot}</span>
+					</div>
+				))
+			}
+		</div>
+
+		<!-- 分布 -->
+		<section class="section">
+			<div class="section-head">
+				<h2 class="section-title">作战分布</h2>
+				<span class="section-hint">统计范围：随机战 PVP</span>
+			</div>
+
+			<div class="grid-2">
+				<div class="card">
+					<div class="section-head" style="margin-bottom:1.1rem">
+						<h2 class="section-title">舰种分布</h2>
+						<span class="section-hint">按出战次数</span>
+					</div>
+					<div class="donut-wrap">
+						<div class="donut">
+							<svg viewBox="0 0 150 150" aria-hidden="true">
+								<circle cx="75" cy="75" r={R} fill="none" style="stroke:var(--primary-ghost)" stroke-width="16"></circle>
+								{
+									segments.map((s) => (
+										<circle
+											cx="75"
+											cy="75"
+											r={R}
+											fill="none"
+											style={`stroke:${s.color}`}
+											stroke-width="16"
+											stroke-dasharray={`${s.dash} ${s.rest}`}
+											stroke-dashoffset={s.offset}
+											transform="rotate(-90 75 75)"
+										/>
+									))
+								}
+							</svg>
+							<div class="donut-center">
+								<strong>{typeTotal}</strong>
+								<span>场次</span>
+							</div>
+						</div>
+						<div class="legend">
+							{
+								segments.map((s) => (
+									<div class="legend-item">
+										<span class="legend-swatch" style={`background:${s.color}`} />
+										<span class="legend-name">{s.label}</span>
+										<span class="legend-value">
+											{s.battles} · {pct(s.share, 0)}
+										</span>
+									</div>
+								))
+							}
+						</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="section-head" style="margin-bottom:1.1rem">
+						<h2 class="section-title">等级分布</h2>
+						<span class="section-hint">各等级的出战次数</span>
+					</div>
+					<div class="bars">
+						{
+							profile.byTier.map((t) => (
+								<div class="bar-row">
+									<span class="bar-label">T{t.tier}</span>
+									<span class="bar-track">
+										<span
+											class="bar-fill"
+											style={`width:${Math.max(2, (t.battles / maxTierBattles) * 100)}%`}
+										/>
+									</span>
+									<span class="bar-value">{t.battles} 场</span>
+								</div>
+							))
+						}
+					</div>
+					<p class="section-hint" style="margin:1.1rem 0 0">
+						主力集中在 T{profile.byTier.reduce((a, b) => (a.battles >= b.battles ? a : b), profile.byTier[0]).tier}，共
+						{profile.shipCount} 艘船出过海。
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- 主力舰船 -->
+		<section class="section">
+			<div class="section-head">
+				<h2 class="section-title">主力舰船</h2>
+				<a class="section-hint" href={`${base}/ships`}>全部 {profile.shipCount} 艘 →</a>
+			</div>
+			<div class="grid-ships">
+				{topShips.map((s) => <ShipCard ship={s} href={`${base}/ships#ship-${s.shipId}`} />)}
+			</div>
+		</section>
+
+		<!-- 记录 + 最近出港 -->
+		<section class="section">
+			<div class="grid-2">
+				<div class="card">
+					<div class="section-head" style="margin-bottom:1rem">
+						<h2 class="section-title">个人纪录</h2>
+					</div>
+					<div class="stack" style="gap:1.05rem">
+						{
+							records.map((r) => (
+								<div class="record">
+									<span class="record-icon">
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round">
+											<path d={RECORD_ICONS[r.icon]} />
+										</svg>
+									</span>
+									<span class="record-body">
+										<span class="record-value">{r.value}</span>
+										<span class="record-label">{r.label}</span>
+									</span>
+								</div>
+							))
+						}
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="section-head" style="margin-bottom:1rem">
+						<h2 class="section-title">最近出港</h2>
+						<span class="section-hint">按最后战斗时间</span>
+					</div>
+					<div class="stack" style="gap:.75rem">
+						{
+							recent.map((s) => (
+								<a
+									href={`${base}/ships#ship-${s.shipId}`}
+									style="display:flex;align-items:center;gap:.7rem;padding:.35rem 0;border-bottom:1px solid var(--hairline)"
+								>
+									{s.image && (
+										<img src={s.image} alt="" width="46" height="27" style="object-fit:contain;flex:0 0 auto" loading="lazy" />
+									)}
+									<span style="display:flex;flex-direction:column;line-height:1.3">
+										<b style="font-weight:600;font-size:.86rem">{s.name}</b>
+										<span style="font-size:.7rem;color:var(--text-faint)">
+											T{s.tier} · {s.typeLabel} · {s.battles} 场
+										</span>
+									</span>
+									<span style="margin-left:auto;font-size:.74rem;color:var(--text-faint);white-space:nowrap">
+										{relative(s.lastBattleAt)}
+									</span>
+								</a>
+							))
+						}
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<p class="section-hint" style="margin-top:3rem;text-align:center">
+			数据生成于 {new Date(meta.generatedAt).toLocaleString("zh-CN")} · 账号 {meta.nickname} · 接口 {meta.realm}
+		</p>
+	</div>
+</Base>
