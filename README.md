@@ -2,6 +2,10 @@
 
 一个静态的《战舰世界》个人战绩页面 —— 展示自己的账号数据，风格对齐 [Firefly](https://github.com/Cydiar/Firefly) 博客主题。
 
+![总览页](docs/preview-home.png)
+
+![舰船页](docs/preview-ships.png)
+
 - 纯静态：构建期就把数据抓成 JSON，运行时零请求、零 key
 - 无框架运行时：Astro + 手写 CSS，产物只有几十 KB
 - 深浅色、响应式、可筛选的逐船战绩表

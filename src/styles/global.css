@@ -531,6 +531,19 @@ main {
 	align-items: center;
 	gap: 1.5rem;
 	flex-wrap: wrap;
+	height: 100%;
+	align-content: center;
+}
+
+/* 让环形图卡片的内容纵向居中，避免底部留大片空白 */
+.card:has(.donut-wrap) {
+	display: flex;
+	flex-direction: column;
+	padding-bottom: 1.6rem;
+}
+
+.card:has(.donut-wrap) .donut-wrap {
+	flex: 1;
 }
 
 .donut {
@@ -898,6 +911,7 @@ main {
 table.ships {
 	width: 100%;
 	border-collapse: collapse;
+	table-layout: fixed;
 	font-size: 0.85rem;
 	min-width: 46rem;
 }
@@ -946,16 +960,11 @@ table.ships tbody td {
 	white-space: nowrap;
 }
 
-/* 第一列宽一些，其余列按内容收紧 */
-table.ships th:first-child,
-table.ships td:first-child {
-	width: 24%;
-	min-width: 13rem;
-}
-
-table.ships th:not(:first-child),
-table.ships td:not(:first-child) {
-	width: 10.5%;
+/* 列宽由 <colgroup> 控制，这里只保证内容不撑破 */
+table.ships td,
+table.ships th {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 table.ships tbody tr:last-child td {
@@ -1013,11 +1022,12 @@ td.ship-cell {
 }
 
 .wr-bar {
-	width: 2.6rem;
+	width: 2.2rem;
 	height: 0.34rem;
 	border-radius: 999px;
 	background: var(--primary-ghost);
 	overflow: hidden;
+	flex: 0 0 auto;
 }
 
 .wr-bar i {

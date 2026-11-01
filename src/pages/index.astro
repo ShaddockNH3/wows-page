@@ -205,6 +205,34 @@ const RECORD_ICONS: Record<string, string> = {
 			</div>
 		</section>
 
+		<!-- 排位（有数据才显示） -->
+		{
+			profile.ranked && profile.ranked.battles > 0 && (
+				<section class="section">
+					<div class="section-head">
+						<h2 class="section-title">排位赛</h2>
+						<span class="section-hint">Ranked Solo</span>
+					</div>
+					<div class="grid-metrics" style="margin-top:0">
+						{[
+							{ label: "场次", value: num(profile.ranked.battles), foot: `胜 ${profile.ranked.wins}` },
+							{ label: "胜率", value: pct(profile.ranked.winrate), foot: `${profile.ranked.wins} 场胜利` },
+							{ label: "场均伤害", value: num(profile.ranked.avgDamage), foot: `累计 ${compact(profile.ranked.damage)}` },
+							{ label: "场均击杀", value: profile.ranked.avgFrags.toFixed(2), foot: `K/D ${profile.ranked.kd.toFixed(2)}` },
+							{ label: "生存率", value: pct(profile.ranked.survival), foot: `${num(profile.ranked.frags)} 次击杀` },
+							{ label: "场均经验", value: num(profile.ranked.avgXp), foot: `命中率 ${pct(profile.ranked.hitRate)}` },
+						].map((m) => (
+							<div class="card metric">
+								<span class="metric-label">{m.label}</span>
+								<span class="metric-value">{m.value}</span>
+								<span class="metric-foot">{m.foot}</span>
+							</div>
+						))}
+					</div>
+				</section>
+			)
+		}
+
 		<!-- 主力舰船 -->
 		<section class="section">
 			<div class="section-head">

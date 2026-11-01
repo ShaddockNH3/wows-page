@@ -89,6 +89,12 @@ const tiers = [...new Set(ships.map((s) => s.tier))].sort((a, b) => a - b);
 
 		<div class="table-wrap">
 			<table class="ships" id="table">
+				<colgroup>
+					<col style="width:25%" />
+					<col style="width:9.5%" />
+					<col style="width:12.5%" />
+					<col span="5" style="width:10.6%" />
+				</colgroup>
 				<thead>
 					<tr>
 						<th>舰船</th>
