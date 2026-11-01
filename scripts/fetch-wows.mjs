@@ -205,10 +205,15 @@ async function main() {
 	// 1. 昵称 → account_id
 	const candidates = await api("account/list/", { search: CONFIG.nickname, limit: 100 });
 	const list = Array.isArray(candidates) ? candidates : [];
-	const exact =
-		list.find((a) => a.nickname.toLowerCase() === CONFIG.nickname.toLowerCase()) ?? list[0];
+	const exact = list.find((a) => a.nickname.toLowerCase() === CONFIG.nickname.toLowerCase());
 	if (!exact) {
-		console.error(`找不到昵称 ${CONFIG.nickname}，请检查拼写或服务器。`);
+		console.error(`✗ 找不到昵称「${CONFIG.nickname}」（服务器：${CONFIG.realm}）`);
+		if (list.length) {
+			console.error(`  相近的账号：${list.slice(0, 8).map((a) => a.nickname).join(" / ")}`);
+			console.error("  把 wows.config.json 里的 nickname 改成完全一致的写法再试。");
+		} else {
+			console.error("  换个服务器试试，或者确认昵称没打错。");
+		}
 		process.exit(1);
 	}
 	const accountId = exact.account_id;

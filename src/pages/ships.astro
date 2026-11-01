@@ -246,6 +246,22 @@ const tiers = [...new Set(ships.map((s) => s.tier))].sort((a, b) => a - b);
 		});
 	}
 
+	// 支持 ?q=关键词&type=Battleship 直接带筛选进来，方便分享
+	const params = new URLSearchParams(location.search);
+	const initQ = params.get("q");
+	const initType = params.get("type");
+	if (initQ) q.value = initQ;
+	if (initType) {
+		const chip = typeBox.querySelector<HTMLButtonElement>(`[data-type="${CSS.escape(initType)}"]`);
+		if (chip) {
+			for (const c of typeBox.querySelectorAll<HTMLButtonElement>(".chip")) {
+				c.setAttribute("aria-pressed", String(c === chip));
+			}
+			activeType = initType;
+		}
+	}
+	if (initQ || initType) apply();
+
 	// 从首页带 #ship-xxx 跳进来时，直接定位那艘船
 	if (location.hash.startsWith("#ship-")) {
 		const target = document.querySelector(location.hash);
