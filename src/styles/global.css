@@ -1215,6 +1215,24 @@ td.ship-cell {
 	}
 
 	.nav-links {
+		margin-left: 0.1rem;
+		gap: 0;
+	}
+
+	.nav-link {
+		padding: 0.38rem 0.6rem;
+		font-size: 0.8rem;
+	}
+
+	.brand-text small {
+		display: none;
+	}
+
+	.brand-text {
+		font-size: 0.9rem;
+	}
+
+	.nav-right .nav-link {
 		display: none;
 	}
 
