@@ -116,7 +116,7 @@ WOWS_APP_ID=xxxx WOWS_NICKNAME=你的ID WOWS_REALM=asia pnpm fetch
 
 ### 定时更新
 
-`.github/workflows/update-data.yml` 每天凌晨 02:00（UTC+8）抓取一次，数据有变化才提交 `src/data`：
+`.github/workflows/update-data.yml` 每周一凌晨 02:00（UTC+8）抓取一次，数据有变化才提交 `src/data`：
 
 - 国服不需要任何 Secrets，默认配置直接能跑
 - 国际服需要在仓库 Secrets 里配置 `WOWS_APP_ID`、`WOWS_NICKNAME`，`WOWS_REALM` 可选
@@ -125,7 +125,7 @@ WOWS_APP_ID=xxxx WOWS_NICKNAME=你的ID WOWS_REALM=asia pnpm fetch
 不启用也一样，数据会停在上一次手动抓取的快照。
 
 > [!TIP]
-> 抓取本身只改 `meta.json` 里的时间戳时不会产生提交，所以每天跑也不会把提交历史刷满。
+> 只改 `meta.json` 里的时间戳时不会产生提交，所以没打游戏的那几周不会多出空提交。
 
 ## PR 评分
 
