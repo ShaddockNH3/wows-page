@@ -2,8 +2,8 @@ name: Update data
 
 on:
   schedule:
-    # 每周一 02:00 (UTC+8)
-    - cron: "0 18 * * 0"
+    # 每天 02:00 (UTC+8)，UTC 是前一天的 18:00
+    - cron: "0 18 * * *"
   workflow_dispatch:
 
 permissions:

@@ -4,6 +4,8 @@
 
 项目有两种用法：直接参与博客构建，作为博客里的一页存在；或者单独构建成一个独立站点。所有数据在构建期抓成 JSON，运行时不发请求，也不需要任何密钥。
 
+线上地址：<https://shaddocknh3.github.io/wows-page/>
+
 ![总览页](docs/preview-pr.jpg)
 
 ![舰船页](docs/preview-ships.jpg)
@@ -114,15 +116,16 @@ WOWS_APP_ID=xxxx WOWS_NICKNAME=你的ID WOWS_REALM=asia pnpm fetch
 
 ### 定时更新
 
-`.github/workflows/update-data.yml` 每周一凌晨抓取一次并提交 `src/data`：
+`.github/workflows/update-data.yml` 每天凌晨 02:00（UTC+8）抓取一次，数据有变化才提交 `src/data`：
 
 - 国服不需要任何 Secrets，默认配置直接能跑
 - 国际服需要在仓库 Secrets 里配置 `WOWS_APP_ID`、`WOWS_NICKNAME`，`WOWS_REALM` 可选
+- 也可以在 Actions 页面手动 `Run workflow`
 
 不启用也一样，数据会停在上一次手动抓取的快照。
 
 > [!TIP]
-> 建议把这个 Action 打开。战绩是慢慢堆起来的，每周自动抓一次，省得想起来才手动跑。
+> 抓取本身只改 `meta.json` 里的时间戳时不会产生提交，所以每天跑也不会把提交历史刷满。
 
 ## PR 评分
 
