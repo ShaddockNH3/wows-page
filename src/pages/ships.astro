@@ -13,6 +13,8 @@ const types = [...new Set(ships.map((s) => s.type))].map((t) => ({
 	color: typeVar(t),
 }));
 const tiers = [...new Set(ships.map((s) => s.tier))].sort((a, b) => a - b);
+/** 国服接口没有逐船的战斗时间，该列整个隐藏 */
+const hasLastBattle = ships.some((s) => s.lastBattleAt > 0);
 ---
 
 <Base title="舰船战绩" description={`${profile.nickname} 的逐船战绩`}>
@@ -62,7 +64,7 @@ const tiers = [...new Set(ships.map((s) => s.tier))].sort((a, b) => a - b);
 					<option value="damage:desc">场均伤害最高</option>
 					<option value="frags:desc">场均击杀最高</option>
 					<option value="survival:desc">生存率最高</option>
-					<option value="last:desc">最近出战</option>
+					{hasLastBattle && <option value="last:desc">最近出战</option>}
 					<option value="tier:desc">等级最高</option>
 				</select>
 			</div>
@@ -89,24 +91,25 @@ const tiers = [...new Set(ships.map((s) => s.tier))].sort((a, b) => a - b);
 
 		<div class="table-wrap">
 			<table class="ships" id="table">
-				<colgroup>
-					<col style="width:25%" />
-					<col style="width:9.5%" />
-					<col style="width:12.5%" />
-					<col span="5" style="width:10.6%" />
-				</colgroup>
-				<thead>
-					<tr>
-						<th>舰船</th>
-						<th data-sort="battles" aria-sort="descending">场次</th>
-						<th data-sort="winrate">胜率</th>
-						<th data-sort="damage">场均伤害</th>
-						<th data-sort="frags">场均击杀</th>
-						<th data-sort="survival">生存率</th>
-						<th data-sort="xp">场均经验</th>
-						<th data-sort="last">最后出战</th>
-					</tr>
-				</thead>
+					<colgroup>
+						<col style={`width:${hasLastBattle ? 25 : 27}%`} />
+						<col style="width:9.5%" />
+						<col style="width:12.5%" />
+						{hasLastBattle && <col span="4" style="width:10.6%" />}
+						{!hasLastBattle && <col span="3" style="width:13.3%" />}
+					</colgroup>
+					<thead>
+						<tr>
+							<th>舰船</th>
+							<th data-sort="battles" aria-sort="descending">场次</th>
+							<th data-sort="winrate">胜率</th>
+							<th data-sort="damage">场均伤害</th>
+							<th data-sort="frags">场均击杀</th>
+							<th data-sort="survival">生存率</th>
+							<th data-sort="xp">场均经验</th>
+							{hasLastBattle && <th data-sort="last">最后出战</th>}
+						</tr>
+					</thead>
 				<tbody>
 					{
 						ships.map((s) => (
@@ -151,7 +154,7 @@ const tiers = [...new Set(ships.map((s) => s.tier))].sort((a, b) => a - b);
 								<td>{s.avgFrags.toFixed(2)}</td>
 								<td>{pct(s.survival)}</td>
 								<td>{num(s.avgXp)}</td>
-								<td style="color:var(--text-faint)">{relative(s.lastBattleAt)}</td>
+								{hasLastBattle && <td style="color:var(--text-faint)">{relative(s.lastBattleAt)}</td>}
 							</tr>
 						))
 					}

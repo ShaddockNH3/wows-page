@@ -24,40 +24,46 @@
 ```bash
 pnpm install
 
-# 1. 改 wows.config.json，填服务器和昵称
-#    { "realm": "cn", "nickname": "你的游戏ID", "appId": "" }
+# 1. 改 wows.config.json，填服务器和昵称（默认就是国服）
+#    { "realm": "cn", "nickname": "你的游戏ID" }
 
-# 2. 抓数据（需要 application_id）
-WOWS_APP_ID=你的id pnpm fetch
+# 2. 抓数据 —— 国服不需要任何 key
+pnpm fetch
 
 # 3. 本地预览
 pnpm dev        # http://localhost:4321
 pnpm build      # 产物在 dist/
 ```
 
-### 关于 application_id
+### 关于 key：国服不用，国际服要
 
-**必须自己申请，官方没有公共 key**（`demo` 那个早就被封了）。
-
-| 服务器 | 申请地址 | API 主机 |
+| 服务器 | 通道 | 需要申请吗 |
 | --- | --- | --- |
-| 国服（360） | https://developers.wggames.cn/ | `api.wowsgame.cn` |
-| 亚服 / 欧服 / 美服 / 俄服 | https://developers.wargaming.net/applications/ | `api.worldofwarships.<region>` |
+| **国服（360）** | Vortex 公开接口 `vortex.wowsgame.cn` | **不需要**，`pnpm fetch` 直接跑 |
+| 亚服 / 欧服 / 美服 / 俄服 | 官方 API | 需要，到 https://developers.wargaming.net/applications/ 免费申请 |
 
-登录后创建应用，立刻就能拿到 id，免费。国服和国际服的 id **不通用**，换服要重新申请。
-
-拿到后建议放环境变量，不要写进仓库：
+国服走的是和官网图鉴同一套 Vortex 接口（搜索、账号、单船、舰船图鉴），版本号都跟着客户端走；
+国际服走官方 API，把申请到的 id 放环境变量即可：
 
 ```bash
-WOWS_APP_ID=xxxx WOWS_NICKNAME=凉柚NH3 WOWS_REALM=cn pnpm fetch
+WOWS_APP_ID=xxxx WOWS_NICKNAME=你的ID WOWS_REALM=asia pnpm fetch
 ```
 
-优先级：环境变量 > `wows.config.json`。
+优先级：环境变量 > `wows.config.json`。国服的 `developers.wggames.cn`（360 的开发者站）常年
+打不开，所以压根没依赖它。
 
-### 仓库里那份示例数据
+### 仓库里这份示例数据
 
-`src/data/*.json` 是构建产物，可以直接提交（这样 CI 不依赖 key 也能构建）。
-仓库里自带的一份是示例号 `Shaddock_NH3`（亚服）的数据，跑一次 `pnpm fetch` 就会覆盖成你自己的。
+`src/data/*.json` 是构建产物，直接提交进仓库（这样 CI 不依赖 key 也能构建）。
+当前这份是国服号 `凉柚NH3` 的数据，跑一次 `pnpm fetch` 就会按配置重新生成。
+
+### 定时更新数据
+
+`.github/workflows/update-data.yml` 每周一凌晨跑一次抓取并提交 `src/data`：
+- 国服不需要任何 Secrets，默认配置直接能跑
+- 国际服需要在仓库 Secrets 里配 `WOWS_APP_ID`、`WOWS_NICKNAME`（`WOWS_REALM` 可选）
+
+不启用也没关系，数据会停在最后一次手动抓取的状态。
 
 ## 部署
 
@@ -72,17 +78,6 @@ WOWS_APP_ID=xxxx WOWS_NICKNAME=凉柚NH3 WOWS_REALM=cn pnpm fetch
 ### Vercel / Cloudflare Pages
 
 框架预设选 Astro，构建命令 `pnpm build`，输出目录 `dist`。部署在根路径就不用管 base。
-
-### 定时更新数据
-
-`.github/workflows/update-data.yml` 每周一凌晨跑一次抓取并提交 `src/data`。
-启用它需要在仓库 Secrets 里加：
-
-- `WOWS_APP_ID`
-- `WOWS_NICKNAME`
-- `WOWS_REALM`（可选，默认 `cn`）
-
-不启用也没关系，数据会一直停在最后一次手动抓取的状态。
 
 ## 挂到 Firefly 博客上
 
@@ -114,6 +109,14 @@ WOWS_APP_ID=xxxx WOWS_NICKNAME=凉柚NH3 WOWS_REALM=cn pnpm fetch
 导航栏那枚调色盘按钮切换，选完写进 `localStorage`，下次进来还是这套。
 想加第三套就往 `themes` 里加一行，`data-theme` 会自动生成对应的 `--hue`。
 URL 参数也能直接指定：`/?palette=wows`、`/?theme=light`，方便给别人看某个特定状态。
+
+### 国服和国际服的数据差异
+
+| | 国服（Vortex） | 国际服（官方 API） |
+| --- | --- | --- |
+| 申请 key | 不需要 | 需要 |
+| 逐船最后战斗时间 | 接口没有，「最近出港」自动换成「武备效率」 | 有 |
+| 舰船图鉴 | GraphQL 全量拿，版本跟客户端 | 官方 encyclopedia 接口 |
 
 ## 数据说明
 

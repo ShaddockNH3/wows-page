@@ -2,5 +2,5 @@
 	"realm": "cn",
 	"nickname": "凉柚NH3",
 	"appId": "",
-	"_comment": "realm 可选 asia / eu / na / ru / cn。appId 建议留空，改用环境变量 WOWS_APP_ID，避免把 key 提交进仓库。"
+	"_comment": "realm 可选 cn / asia / eu / na / ru。国服走 Vortex 公开接口，不需要 appId；其他服走官方 API，把 appId 填这里或用环境变量 WOWS_APP_ID。"
 }

@@ -15,7 +15,8 @@ const generated = new Date(meta.generatedAt).toLocaleDateString("zh-CN", {
 			© {new Date().getFullYear()} {siteConfig.author} · 数据来自 Wargaming / 360 公开 API
 		</div>
 		<div>
-			数据更新于 {generated} · 本站与 Wargaming 无关联</div
-		>
+			数据更新于 {generated}
+			{meta.gameVersion && ` · 客户端 ${meta.gameVersion}`} · 本站与 Wargaming、360 无关联
+		</div>
 	</div>
 </footer>
