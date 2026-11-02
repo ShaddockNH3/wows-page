@@ -1,17 +1,18 @@
 {
-  "name": "wows-page",
-  "type": "module",
-  "version": "0.1.0",
-  "private": true,
-  "description": "A static World of Warships profile page, styled after the Firefly blog theme.",
-  "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "fetch": "node scripts/fetch-wows.mjs"
-  },
-  "dependencies": {
-    "astro": "^5.14.1"
-  }
+	"name": "wows-page",
+	"type": "module",
+	"version": "0.1.0",
+	"private": true,
+	"description": "A static World of Warships profile page, styled after the Firefly blog theme.",
+	"scripts": {
+		"dev": "astro dev",
+		"start": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"fetch": "node scripts/fetch-wows.mjs",
+		"sync": "node scripts/sync-to-blog.mjs"
+	},
+	"dependencies": {
+		"astro": "^5.14.1"
+	}
 }

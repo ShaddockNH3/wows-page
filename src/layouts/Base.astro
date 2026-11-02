@@ -51,11 +51,13 @@ const paletteCss = Object.entries(themes)
 		</script>
 	</head>
 	<body>
-		<Navbar />
-		<main>
-			<slot />
-		</main>
-		<Footer />
+		<div class="wows-scope">
+			<Navbar />
+			<main>
+				<slot />
+			</main>
+			<Footer />
+		</div>
 
 		<script>
 			const root = document.documentElement;

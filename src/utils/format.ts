@@ -49,4 +49,4 @@ export const typeKey = (type: string) => {
 	return map[type] ?? "unknown";
 };
 
-export const typeVar = (type: string) => `var(--t-${typeKey(type)})`;
+export const typeVar = (type: string) => `var(--wows-t-${typeKey(type)})`;

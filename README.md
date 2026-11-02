@@ -8,9 +8,10 @@
 
 - 纯静态：构建期就把数据抓成 JSON，运行时零请求、零 key
 - 无框架运行时：Astro + 手写 CSS，产物只有几十 KB
-- **两套配色**：`blog`（跟博客主题色一致）和 `wows`（海军蓝），导航栏一键切换，会记住选择
+- **两种用法**：嵌进 Firefly 博客一起构建（主题跟随博客），或自己单独跑一个站
+- **两套配色**（独立部署时）：`blog`（跟博客主题色一致）和 `wows`（海军蓝），导航栏一键切换
 - 深浅色、响应式、可筛选的逐船战绩表
-- 不改动博客本体，可独立部署，也可以挂在 `/wows/` 子路径
+- 不改动博客本体，页面组件与外壳完全解耦
 
 ## 页面
 
@@ -67,25 +68,66 @@ WOWS_APP_ID=xxxx WOWS_NICKNAME=你的ID WOWS_REALM=asia pnpm fetch
 
 ## 部署
 
-### GitHub Pages
+两种用法：**嵌进 Firefly 博客一起构建**（推荐），或者**自己单独跑一个站**。
 
-推上去，在仓库 Settings → Pages 里把 Source 选成 GitHub Actions 即可，
-`.github/workflows/deploy.yml` 会在每次 push 后自动构建发布。
+### 一、嵌进 Firefly 博客（参与博客构建）
 
-项目站点的地址是 `https://<user>.github.io/wows-page/`，工作流里已经自动把
-`BASE_PATH` 设成 `/wows-page`，不用手动改。
+页面会走博客自己的三栏网格，导航、壁纸、侧栏、页脚、转场全是博客的，主题色也跟随博客的
+`--hue`，视觉上就是博客里多了一页。
 
-### Vercel / Cloudflare Pages
+```bash
+# 在 wows-page 目录里，指向你的博客仓库
+pnpm sync /path/to/Firefly
+```
 
-框架预设选 Astro，构建命令 `pnpm build`，输出目录 `dist`。部署在根路径就不用管 base。
+会写入这几处（其它文件一律不动）：
 
-## 挂到 Firefly 博客上
+```
+<blog>/src/wows/{views,components,styles,data,utils}
+<blog>/src/pages/wows/{index,ships}.astro
+```
 
-不想动博客源码的话，有两种方式：
+然后在博客的 `src/config/navBarConfig.ts` 里加一项导航（`pnpm sync` 结束时也会把这段打出来）：
 
-1. **子路径**：把本站部署到 `blog.attilio.cc/wows/`（Vercel 上给同一个项目加 rewrite，
-   或者单独部署后用 `rewrites` 转发），然后导航栏 `blogUrl` 反着指回去就行。
-2. **独立域名**：本站单独部署，导航栏的「博客」按钮指回博客（改 `src/config.ts` 的 `blogUrl`）。
+```ts
+{
+	name: "舰长档案",
+	url: "/wows/",
+	icon: "material-symbols:anchor",
+},
+```
+
+就完了。`pnpm build` 博客时这两个页面会一起构建。
+
+几点说明：
+
+- 页面壳用 `MainGridLayout`，所以内容在中间列。窄的时候舰船表会横向滚动，这是三栏布局的代价
+- 内容外面套了 `wows-scope wows-scope--plain`：`--plain` 表示不抢博客的壁纸和字体，只用组件自己的皮
+- 配色继承博客的 `--hue`，那套「玫粉 / 海军蓝」的双主题在博客里不生效（博客说了算）
+- 数据改动后重新 `pnpm fetch && pnpm sync` 即可
+
+### 二、独立部署
+
+自己跑一个站，带自己的导航、页脚和双主题。
+
+**Vercel / Cloudflare Pages**：框架预设选 Astro，构建命令 `pnpm build`，输出目录 `dist`。
+私有仓库也能连，这是最省事的路。
+
+**GitHub Pages**：`.github/workflows/deploy.yml` 已经写好了，每次 push 自动构建发布。
+但注意 Pages 对**私有仓库**要 Pro 才有，仓库公开才能免费用；项目站点会自动把 `BASE_PATH`
+设成 `/<repo>`，绑自定义域名的话把它改成 `/`。
+
+导航栏的「博客」按钮指回博客，改 `src/config.ts` 的 `blogUrl`。
+
+## 想要 iframe 那种最省事的
+
+如果哪天不想参与构建了，也可以把独立部署的地址用 iframe 塞进任意页面，主题用 URL 参数对齐：
+
+```
+https://你的站/?palette=wows&theme=dark
+```
+
+缺点是要多维护一个站，而且博客的深浅色切换不会自动同步过去。
 
 两种都不需要改博客的代码。
 

@@ -47,10 +47,10 @@ export const realmLabel: Record<string, string> = {
 };
 
 export const typeColor: Record<string, string> = {
-	Destroyer: "var(--t-destroyer)",
-	Cruiser: "var(--t-cruiser)",
-	Battleship: "var(--t-battleship)",
-	AirCarrier: "var(--t-carrier)",
-	Submarine: "var(--t-submarine)",
-	Unknown: "var(--t-unknown)",
+	Destroyer: "var(--wows-t-destroyer)",
+	Cruiser: "var(--wows-t-cruiser)",
+	Battleship: "var(--wows-t-battleship)",
+	AirCarrier: "var(--wows-t-carrier)",
+	Submarine: "var(--wows-t-submarine)",
+	Unknown: "var(--wows-t-unknown)",
 };
