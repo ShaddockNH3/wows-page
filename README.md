@@ -75,6 +75,10 @@ WOWS_APP_ID=xxxx WOWS_NICKNAME=你的ID WOWS_REALM=asia pnpm fetch
 页面会走博客自己的三栏网格，导航、壁纸、侧栏、页脚、转场全是博客的，主题色也跟随博客的
 `--hue`，视觉上就是博客里多了一页。
 
+![嵌进博客后的总览页](docs/embed-home.jpg)
+
+![嵌进博客后的舰船页](docs/embed-ships.jpg)
+
 ```bash
 # 在 wows-page 目录里，指向你的博客仓库
 pnpm sync /path/to/Firefly
