@@ -97,37 +97,6 @@ html.dark .wows-scope {
 	margin-top: -1.8rem;
 }
 
-.wows-scope {
-	container-type: inline-size;
-}
-
-@container (max-width: 820px) {
-	.wows-scope .grid-metrics {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-	}
-}
-
-@container (max-width: 460px) {
-	.wows-scope .grid-metrics {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-}
-
-.wows-scope {
-	container-type: inline-size;
-}
-
-@container (max-width: 820px) {
-	.wows-scope .grid-metrics {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-	}
-}
-
-@container (max-width: 460px) {
-	.wows-scope .grid-metrics {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-}
 
 
 /* 嵌进博客时顶部已经有 banner，把 hero 的留白收掉 */
@@ -144,43 +113,15 @@ html.dark .wows-scope {
 	margin-top: -1.8rem;
 }
 
-.wows-scope {
-	container-type: inline-size;
-}
 
-@container (max-width: 820px) {
-	.wows-scope .grid-metrics {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-	}
-}
-
-@container (max-width: 460px) {
-	.wows-scope .grid-metrics {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-}
-
-.wows-scope {
-	container-type: inline-size;
-}
-
-@container (max-width: 820px) {
-	.wows-scope .grid-metrics {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-	}
-}
-
-@container (max-width: 460px) {
-	.wows-scope .grid-metrics {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-}
 
 /* -------------------------------- 基础 -------------------------------- */
 .wows-scope {
 	position: relative;
 	isolation: isolate;
 	min-height: 100%;
+	/* 容器查询的基准：嵌入博客时按内容列宽度排版，而不是按浏览器窗口 */
+	container-type: inline-size;
 	background-color: var(--wows-page-bg);
 	color: var(--wows-text);
 	font-family:
@@ -590,7 +531,7 @@ main {
 
 .grid-metrics {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+	grid-template-columns: repeat(6, minmax(0, 1fr));
 	gap: 1rem;
 	margin-top: -2.3rem;
 	position: relative;
@@ -1283,17 +1224,6 @@ main {
 .score-part-top b.down {
 	color: oklch(0.7 0.15 30);
 }
-
-@container (max-width: 620px) {
-	.score-parts {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-
-	.score-big {
-		font-size: 2.5rem;
-	}
-}
-
 .score-cell {
 	display: inline-block;
 	min-width: 2.5rem;
@@ -1417,7 +1347,8 @@ table.ships tbody tr:hover {
 	background: var(--wows-primary-ghost);
 }
 
-td.ship-cell {
+/* 需要和 table.ships tbody td 同等特异性，否则会被它的 text-align: right 盖掉 */
+table.ships tbody td.ship-cell {
 	text-align: left;
 	min-width: 12rem;
 }
@@ -1700,4 +1631,73 @@ td.ship-cell {
 	}
 }
 
+
+/* 嵌入博客时，内容列的宽度和浏览器窗口无关，
+   所以这里的断点全部按「容器」算，而不是按视口 */
+
+
+
+}
+
+/* 容器查询：放在 @scope 外面，按内容列宽度排版（嵌入博客时与浏览器窗口无关） */
+@container (max-width: 900px) {
+	.wows-scope .grid-metrics {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@container (max-width: 760px) {
+	.wows-scope .grid-2 {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.wows-scope .hero-inner {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 1.4rem;
+	}
+
+	.wows-scope .hero-metrics {
+		justify-content: space-between;
+		gap: 1rem;
+	}
+}
+
+@container (max-width: 680px) {
+	.wows-scope .grid-ships {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.wows-scope .donut-wrap {
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.wows-scope .legend {
+		width: 100%;
+	}
+
+	.wows-scope .card {
+		padding: 0.9rem 1rem;
+	}
+
+	.wows-scope .metric-value {
+		font-size: 1.35rem;
+	}
+
+	.wows-scope .metric-label,
+	.wows-scope .metric-foot {
+		font-size: 0.7rem;
+	}
+}
+
+@container (max-width: 400px) {
+	.wows-scope .grid-metrics {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.wows-scope .grid-ships {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }

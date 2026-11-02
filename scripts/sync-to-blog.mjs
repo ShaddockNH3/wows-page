@@ -76,7 +76,10 @@ async function main() {
 	await writeFile(path.join(pagesDir, "index.astro"), PROFILE_PAGE);
 	await writeFile(path.join(pagesDir, "ships.astro"), SHIPS_PAGE);
 
-	console.log("✓ 完成：src/wows/ 与 src/pages/wows/ 已更新");
+	// Astro 的增量缓存认不出「文件被外部覆盖」，不清掉的话下次构建会沿用旧的编译结果
+	await rm(path.join(target, ".astro"), { recursive: true, force: true });
+
+	console.log("✓ 完成：src/wows/ 与 src/pages/wows/ 已更新（已清 .astro 缓存）");
 	console.log("  记得在 navBarConfig.ts 里加导航项：");
 	console.log('  { name: "舰长档案", url: "/wows/", icon: "material-symbols:anchor" }');
 }
