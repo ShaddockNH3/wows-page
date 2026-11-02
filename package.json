@@ -10,7 +10,8 @@
 		"build": "astro build",
 		"preview": "astro preview",
 		"fetch": "node scripts/fetch-wows.mjs",
-		"sync": "node scripts/sync-to-blog.mjs"
+		"sync": "node scripts/sync-to-blog.mjs",
+		"baselines": "node scripts/fetch-baselines.mjs"
 	},
 	"dependencies": {
 		"astro": "^5.14.1"

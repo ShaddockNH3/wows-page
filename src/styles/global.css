@@ -1036,6 +1036,200 @@ main {
 	font-variant-numeric: tabular-nums;
 }
 
+/* ------------------------------ 评分 ------------------------------ */
+.score-card {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+
+.score-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.score-main {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.score-big {
+	font-size: 3.1rem;
+	font-weight: 800;
+	line-height: 0.95;
+	letter-spacing: -0.035em;
+	font-variant-numeric: tabular-nums;
+}
+
+.score-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.score-tier {
+	display: inline-block;
+	width: fit-content;
+	padding: 0.14rem 0.6rem;
+	border-radius: 999px;
+	font-size: 0.76rem;
+	font-weight: 600;
+	background: color-mix(in oklab, currentColor 14%, transparent);
+	color: var(--wows-primary-strong);
+}
+
+.score-tier[data-tier="super"] {
+	color: oklch(0.7 0.18 305);
+}
+
+.score-tier[data-tier="elite"] {
+	color: oklch(0.7 0.16 285);
+}
+
+.score-tier[data-tier="great"] {
+	color: oklch(0.72 0.15 255);
+}
+
+.score-tier[data-tier="good"] {
+	color: oklch(0.72 0.13 225);
+}
+
+.score-tier[data-tier="above"] {
+	color: oklch(0.72 0.12 190);
+}
+
+.score-tier[data-tier="average"] {
+	color: oklch(0.72 0.13 155);
+}
+
+.score-tier[data-tier="below"] {
+	color: oklch(0.74 0.14 85);
+}
+
+.score-tier[data-tier="low"] {
+	color: oklch(0.68 0.16 30);
+}
+
+.score-note {
+	font-size: 0.72rem;
+	color: var(--wows-text-faint);
+}
+
+.score-how summary {
+	cursor: pointer;
+	font-size: 0.78rem;
+	color: var(--wows-text-muted);
+	white-space: nowrap;
+}
+
+.score-how summary:hover {
+	color: var(--wows-primary-strong);
+}
+
+.score-how div {
+	max-width: 27rem;
+	margin-top: 0.65rem;
+	font-size: 0.78rem;
+	line-height: 1.65;
+	color: var(--wows-text-muted);
+}
+
+.score-how p {
+	margin: 0 0 0.5rem;
+}
+
+.score-parts {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 1rem 1.4rem;
+}
+
+.score-part-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	font-size: 0.78rem;
+	margin-bottom: 0.4rem;
+	color: var(--wows-text-soft);
+}
+
+.score-part-top em {
+	font-style: normal;
+	font-size: 0.68rem;
+	color: var(--wows-text-faint);
+	margin-left: 0.2rem;
+}
+
+.score-part-top b {
+	font-variant-numeric: tabular-nums;
+	color: var(--wows-text);
+}
+
+.score-part-top b.up {
+	color: oklch(0.72 0.13 155);
+}
+
+.score-part-top b.down {
+	color: oklch(0.7 0.15 30);
+}
+
+@container (max-width: 620px) {
+	.score-parts {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.score-big {
+		font-size: 2.5rem;
+	}
+}
+
+.score-cell {
+	display: inline-block;
+	min-width: 2.5rem;
+	padding: 0.05rem 0.4rem;
+	border-radius: var(--wows-radius-sm);
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	font-size: 0.82rem;
+	background: color-mix(in oklab, currentColor 12%, transparent);
+}
+
+.score-cell[data-tier="super"] {
+	color: oklch(0.7 0.18 305);
+}
+
+.score-cell[data-tier="elite"] {
+	color: oklch(0.7 0.16 285);
+}
+
+.score-cell[data-tier="great"] {
+	color: oklch(0.72 0.15 255);
+}
+
+.score-cell[data-tier="good"] {
+	color: oklch(0.72 0.13 225);
+}
+
+.score-cell[data-tier="above"] {
+	color: oklch(0.72 0.12 190);
+}
+
+.score-cell[data-tier="average"] {
+	color: oklch(0.72 0.13 155);
+}
+
+.score-cell[data-tier="below"] {
+	color: oklch(0.74 0.14 85);
+}
+
+.score-cell[data-tier="low"] {
+	color: oklch(0.68 0.16 30);
+}
+
 /* -------------------------------- 表格 -------------------------------- */
 .table-wrap {
 	overflow-x: auto;

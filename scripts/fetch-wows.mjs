@@ -19,6 +19,7 @@
 
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { scoreAccount, scoreShip } from "./scoring.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const DATA_DIR = path.join(ROOT, "src", "data");
@@ -461,6 +462,24 @@ async function main() {
 
 	const isCn = cfg.realm === "cn";
 	const { profile, ships, source } = isCn ? await fetchCn(cfg) : await fetchOfficial(cfg);
+
+	// 逐船 PR + 账号总 PR（wows-numbers 口径，基准来自全服样本）
+	for (const ship of ships) {
+		const result = scoreShip(ship);
+		ship.pr = result.pr;
+		ship.prTier = result.tier;
+		ship.prLabel = result.label;
+		ship.prParts = result.parts;
+		ship.baseline = result.baseline
+			? {
+					dmg: Math.round(result.baseline.dmg),
+					frags: Number(result.baseline.frags.toFixed(3)),
+					wr: Number((result.baseline.wr * 100).toFixed(2)),
+					approximate: Boolean(result.baseline.approximate),
+				}
+			: null;
+	}
+	profile.overall = scoreAccount(ships);
 
 	const meta = {
 		generatedAt: new Date().toISOString(),

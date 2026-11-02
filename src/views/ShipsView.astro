@@ -8,6 +8,19 @@ import profile from "../data/profile.json";
 import ships from "../data/ships.json";
 import { pct, num, relative, wrGrade, typeVar } from "../utils/format";
 
+// PR 分档，沿用 wows-numbers 的区间
+const prKey = (pr: number | null) => {
+	if (pr == null) return "low";
+	if (pr >= 2450) return "super";
+	if (pr >= 2100) return "elite";
+	if (pr >= 1750) return "great";
+	if (pr >= 1550) return "good";
+	if (pr >= 1350) return "above";
+	if (pr >= 1100) return "average";
+	if (pr >= 750) return "below";
+	return "low";
+};
+
 // 独立部署时取 BASE_URL；嵌进博客时由外层传入
 const { basePath } = Astro.props;
 const base = basePath ?? import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -19,6 +32,11 @@ const types = [...new Set(ships.map((s) => s.type))].map((t) => ({
 	color: typeVar(t),
 }));
 const tiers = [...new Set(ships.map((s) => s.tier))].sort((a, b) => a - b);
+const nations = [...new Set(ships.map((s) => s.nation))].map((n) => ({
+	key: n,
+	label: ships.find((s) => s.nation === n)?.nationLabel ?? n,
+	battles: ships.filter((s) => s.nation === n).reduce((a, b) => a + b.battles, 0),
+}));
 /** 国服接口没有逐船的战斗时间，该列整个隐藏 */
 const hasLastBattle = ships.some((s) => s.lastBattleAt > 0);
 ---
@@ -63,7 +81,15 @@ const hasLastBattle = ships.some((s) => s.lastBattleAt > 0);
 			</div>
 
 			<div class="select-wrap">
+				<select id="nation" aria-label="按国籍筛选">
+					<option value="">全部国籍</option>
+					{nations.map((n) => <option value={n.key}>{n.label}（{n.battles} 场）</option>)}
+				</select>
+			</div>
+
+			<div class="select-wrap">
 				<select id="sort" aria-label="排序方式">
+					<option value="pr:desc">PR 最高</option>
 					<option value="battles:desc">场次最多</option>
 					<option value="winrate:desc">胜率最高</option>
 					<option value="damage:desc">场均伤害最高</option>
@@ -97,15 +123,20 @@ const hasLastBattle = ships.some((s) => s.lastBattleAt > 0);
 		<div class="table-wrap">
 			<table class="ships" id="table">
 					<colgroup>
-						<col style={`width:${hasLastBattle ? 25 : 27}%`} />
+						<col style="width:24%" />
+						<col style="width:9%" />
+						<col style="width:8%" />
+						<col style="width:11.5%" />
+						<col style="width:11%" />
 						<col style="width:9.5%" />
-						<col style="width:12.5%" />
-						{hasLastBattle && <col span="4" style="width:10.6%" />}
-						{!hasLastBattle && <col span="3" style="width:13.3%" />}
+						<col style="width:9%" />
+						<col style="width:9%" />
+						{hasLastBattle && <col style="width:9%" />}
 					</colgroup>
 					<thead>
 						<tr>
 							<th>舰船</th>
+							<th data-sort="pr">PR</th>
 							<th data-sort="battles" aria-sort="descending">场次</th>
 							<th data-sort="winrate">胜率</th>
 							<th data-sort="damage">场均伤害</th>
@@ -122,6 +153,8 @@ const hasLastBattle = ships.some((s) => s.lastBattleAt > 0);
 								id={`ship-${s.shipId}`}
 								data-search={`${s.name} ${s.nameEn}`.toLowerCase()}
 								data-type={s.type}
+								data-nation={s.nation}
+								data-pr={s.pr ?? 0}
 								data-tier={s.tier}
 								data-battles={s.battles}
 								data-winrate={s.winrate}
@@ -145,6 +178,13 @@ const hasLastBattle = ships.some((s) => s.lastBattleAt > 0);
 											</span>
 										</span>
 									</div>
+								</td>
+								<td>
+									{s.pr != null ? (
+										<span class="score-cell" data-tier={prKey(s.pr)}>{s.pr}</span>
+									) : (
+										<span style="color:var(--wows-text-faint)">—</span>
+									)}
 								</td>
 								<td>{num(s.battles)}</td>
 								<td>
@@ -189,6 +229,7 @@ function initShipsPage() {
 		const rows = [...tbody.querySelectorAll<HTMLTableRowElement>("tr")];
 		const q = document.getElementById("q") as HTMLInputElement;
 		const tierSel = document.getElementById("tier") as HTMLSelectElement;
+	const nationSel = document.getElementById("nation") as HTMLSelectElement | null;
 		const sortSel = document.getElementById("sort") as HTMLSelectElement;
 		const typeBox = document.getElementById("types")!;
 		const count = document.getElementById("count")!;
@@ -202,6 +243,7 @@ function initShipsPage() {
 		function apply() {
 			const term = q.value.trim().toLowerCase();
 			const tier = tierSel.value;
+		const nation = nationSel?.value ?? "";
 			let shown = 0;
 
 			for (const row of rows) {
@@ -229,6 +271,7 @@ function initShipsPage() {
 
 		q.addEventListener("input", apply);
 		tierSel.addEventListener("change", apply);
+	nationSel?.addEventListener("change", apply);
 
 		typeBox.addEventListener("click", (e) => {
 			const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".chip");

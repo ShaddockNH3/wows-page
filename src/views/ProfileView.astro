@@ -42,6 +42,17 @@ const topShips = ships.slice(0, 6);
 const hasRecent = ships.some((s) => s.lastBattleAt > 0);
 const recent = [...ships].sort((a, b) => b.lastBattleAt - a.lastBattleAt).slice(0, 5);
 
+// 总 PR 与三项相对基准的偏差
+const overall = profile.overall as any;
+const parts = overall?.ratios
+	? [
+			{ key: "damage", label: "伤害", value: overall.ratios.damage },
+			{ key: "frags", label: "击杀", value: overall.ratios.frags },
+			{ key: "wins", label: "胜率", value: overall.ratios.wins },
+		]
+	: [];
+const prWidth = (v: number) => Math.min(100, Math.max(3, 50 + v * 4));
+
 const records = [
 	{ label: "单场最高伤害", value: num(p.maxDamage), icon: "damage" },
 	{ label: "单场最多击杀", value: `${p.maxFrags} 艘`, icon: "kill" },
@@ -141,6 +152,60 @@ const RECORD_ICONS: Record<string, string> = {
 				))
 			}
 		</div>
+
+		<!-- 综合评分 -->
+		{
+			overall?.pr != null && (
+				<section class="section" style="margin-top:2rem">
+					<div class="card score-card">
+						<div class="score-head">
+							<div class="score-main">
+								<span class="score-big">{overall.pr}</span>
+								<div class="score-meta">
+									<span class="score-tier" data-tier={overall.tier}>PR · {overall.label}</span>
+									<span class="score-note">
+										按 {ships.filter((s: any) => s.pr != null).length} 艘船、{overall.countedBattles} 场折算
+									</span>
+								</div>
+							</div>
+							<details class="score-how">
+								<summary>怎么算的</summary>
+								<div>
+									<p>
+										Personal Rating，公式与 wows-numbers 公开口径一致：把实际的总伤害、总击杀、总胜场
+										分别除以「场次 × 该船全服平均」，得到三个比值，再按
+										700 / 300 / 150 的权重加权。
+									</p>
+									<p>
+										全服平均值取自 49 万活跃账号、18 亿场随机战的统计样本；
+										找不到同名船时退到「同舰种同等级」的平均值。
+									</p>
+									<p class="section-hint">
+										国服与国际服的环境不同，数值会有偏差，看趋势比看绝对值靠谱。
+									</p>
+								</div>
+							</details>
+						</div>
+						<div class="score-parts">
+							{parts.map((p: any) => (
+								<div class="score-part">
+									<div class="score-part-top">
+										<span>{p.label} <em>vs 全服</em></span>
+										<b class={p.value >= 0 ? "up" : "down"}>
+											{p.value > 0 ? "+" : ""}
+											{p.value}%
+										</b>
+									</div>
+									<span class="bar-track">
+										<span class="bar-fill" style={`width:${prWidth(p.value)}%`} />
+									</span>
+								</div>
+							))}
+						</div>
+					</div>
+				</section>
+			)
+		}
 
 		<!-- 分布 -->
 		<section class="section">

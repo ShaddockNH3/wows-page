@@ -65,7 +65,10 @@ async function main() {
 	await cp(path.join(ROOT, "src", "views"), path.join(wowsDir, "views"), { recursive: true });
 	await cp(path.join(ROOT, "src", "components"), path.join(wowsDir, "components"), { recursive: true });
 	await cp(path.join(ROOT, "src", "components"), path.join(wowsDir, "components"), { recursive: true });
-	await cp(path.join(ROOT, "src", "data"), path.join(wowsDir, "data"), { recursive: true });
+	// 只带页面要用的三个文件；baselines 是抓取阶段用的，博客构建不需要
+	for (const f of ["profile.json", "ships.json", "meta.json"]) {
+		await cp(path.join(ROOT, "src", "data", f), path.join(wowsDir, "data", f));
+	}
 	await cp(path.join(ROOT, "src", "styles", "global.css"), path.join(wowsDir, "styles", "global.css"));
 	await cp(path.join(ROOT, "src", "utils", "format.ts"), path.join(wowsDir, "utils", "format.ts"));
 

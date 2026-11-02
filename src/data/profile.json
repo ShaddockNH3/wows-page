@@ -81,7 +81,21 @@
 		"maxDamage": 97211,
 		"maxFrags": 3,
 		"maxXp": 1402,
-		"maxPlanesKilled": 18
+		"maxPlanesKilled": 18,
+		"pr": 1929,
+		"prTier": "great",
+		"prLabel": "优秀",
+		"prParts": {
+			"damage": 30,
+			"frags": 32,
+			"wins": 64
+		},
+		"baseline": {
+			"dmg": 34485,
+			"frags": 0.689,
+			"wr": 49.96,
+			"approximate": false
+		}
 	},
 	"bestDamageShip": {
 		"shipId": 4276041424,
@@ -120,7 +134,21 @@
 		"maxDamage": 155186,
 		"maxFrags": 1,
 		"maxXp": 1497,
-		"maxPlanesKilled": 13
+		"maxPlanesKilled": 13,
+		"pr": 596,
+		"prTier": "low",
+		"prLabel": "待提升",
+		"prParts": {
+			"damage": -11,
+			"frags": -83,
+			"wins": -49
+		},
+		"baseline": {
+			"dmg": 87766,
+			"frags": 0.731,
+			"wr": 49.34,
+			"approximate": false
+		}
 	},
 	"byType": [
 		{
@@ -248,5 +276,16 @@
 			"winrate": 0.25,
 			"avgDamage": 78195
 		}
-	]
+	],
+	"overall": {
+		"pr": 1243,
+		"tier": "average",
+		"label": "平均",
+		"countedBattles": 397,
+		"ratios": {
+			"damage": 7,
+			"frags": 0,
+			"wins": 3
+		}
+	}
 }
