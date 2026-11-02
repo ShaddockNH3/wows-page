@@ -144,8 +144,8 @@ const SORT_OPTIONS = [
 					<thead>
 						<tr>
 							<th>舰船</th>
-							<th data-sort="pr">PR</th>
-							<th data-sort="battles" aria-sort="descending">场次</th>
+							<th data-sort="pr" aria-sort="descending">PR</th>
+							<th data-sort="battles">场次</th>
 							<th data-sort="winrate">胜率</th>
 							<th data-sort="damage">场均伤害</th>
 							<th data-sort="frags">场均击杀</th>
@@ -245,7 +245,7 @@ function initShipsPage() {
 		const table = document.getElementById("table")!;
 
 		let activeType = "";
-		let sortKey = "battles";
+		let sortKey = "pr";
 		let sortDir: 1 | -1 = -1;
 
 		function apply() {
@@ -258,7 +258,8 @@ function initShipsPage() {
 				const ok =
 					(!term || row.dataset.search!.includes(term)) &&
 					(!activeType || row.dataset.type === activeType) &&
-					(!tier || row.dataset.tier === tier);
+					(!tier || row.dataset.tier === tier) &&
+					(!nation || row.dataset.nation === nation);
 				row.hidden = !ok;
 				if (ok) shown++;
 			}
@@ -276,6 +277,9 @@ function initShipsPage() {
 			});
 			for (const row of sorted) tbody.appendChild(row);
 		}
+
+		// 初始顺序由数据抓取时的顺序决定，这里按「PR 最高」重排一次，跟下拉默认项对齐
+		sortBy(sortKey, sortDir);
 
 		// 自定义下拉：原生 select 的展开列表由系统绘制，样式改不动，所以自己做一个
 	const selects = [...document.querySelectorAll<HTMLElement>(".w-select")];
@@ -340,8 +344,8 @@ function initShipsPage() {
 			apply();
 		});
 
-		sortSel.addEventListener("change", () => {
-			const [key, dir] = sortSel.value.split(":");
+		sortSel.addEventListener("select-change", () => {
+			const [key, dir] = (val("sort") || "battles:desc").split(":");
 			sortKey = key;
 			sortDir = dir === "asc" ? 1 : -1;
 			sortBy(sortKey, sortDir);

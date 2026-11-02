@@ -1701,3 +1701,19 @@ table.ships tbody td.ship-cell {
 		grid-template-columns: minmax(0, 1fr);
 	}
 }
+
+/* 内容列不够宽时，胜率那根小条会挤掉百分比（导致 100.0% 被省略号截断），
+   窄的时候只留数字 */
+@container (max-width: 1150px) {
+	.wows-scope .wr-bar {
+		display: none;
+	}
+}
+
+/* 内容列不够宽时，胜率那根小条会挤掉百分比（导致 100.0% 被省略号截断），
+   窄的时候只留数字 */
+@container (max-width: 1150px) {
+	.wows-scope .wr-bar {
+		display: none;
+	}
+}
