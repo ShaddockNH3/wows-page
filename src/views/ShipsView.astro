@@ -4,11 +4,10 @@ interface Props {
 	basePath?: string;
 }
 
+import Select from "../components/Select.astro";
 import profile from "../data/profile.json";
 import ships from "../data/ships.json";
-import Select from "../components/Select.astro";
-import { pct, num, relative, wrGrade, typeVar } from "../utils/format";
-
+import { num, pct, relative, typeVar, wrGrade } from "../utils/format";
 
 // PR 分档，沿用 wows-numbers 的区间
 const prKey = (pr: number | null) => {
@@ -37,7 +36,9 @@ const tiers = [...new Set(ships.map((s) => s.tier))].sort((a, b) => a - b);
 const nations = [...new Set(ships.map((s) => s.nation))].map((n) => ({
 	key: n,
 	label: ships.find((s) => s.nation === n)?.nationLabel ?? n,
-	battles: ships.filter((s) => s.nation === n).reduce((a, b) => a + b.battles, 0),
+	battles: ships
+		.filter((s) => s.nation === n)
+		.reduce((a, b) => a + b.battles, 0),
 }));
 /** 国服接口没有逐船的战斗时间，该列整个隐藏 */
 const hasLastBattle = ships.some((s) => s.lastBattleAt > 0);

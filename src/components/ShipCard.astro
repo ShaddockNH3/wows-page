@@ -1,5 +1,5 @@
 ---
-import { typeVar, num, compact, pct } from "../utils/format";
+import { compact, num, pct, typeVar } from "../utils/format";
 
 interface Ship {
 	shipId: number;
@@ -22,7 +22,20 @@ interface Props {
 }
 
 const { ship, href = "#" } = Astro.props;
-const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"];
+const ROMAN = [
+	"",
+	"I",
+	"II",
+	"III",
+	"IV",
+	"V",
+	"VI",
+	"VII",
+	"VIII",
+	"IX",
+	"X",
+	"XI",
+];
 ---
 
 <a class="card card-hover ship-card" href={href} id={`ship-${ship.shipId}`}>

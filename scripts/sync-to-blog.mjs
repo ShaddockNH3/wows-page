@@ -70,6 +70,8 @@ async function main() {
 		await cp(path.join(ROOT, "src", "data", f), path.join(wowsDir, "data", f));
 	}
 	await cp(path.join(ROOT, "src", "styles", "global.css"), path.join(wowsDir, "styles", "global.css"));
+	// 组件里的 `../config` 要靠它，否则博客那边类型检查会报找不到模块
+	await cp(path.join(ROOT, "src", "config.ts"), path.join(wowsDir, "config.ts"));
 	await cp(path.join(ROOT, "src", "utils", "format.ts"), path.join(wowsDir, "utils", "format.ts"));
 
 	await mkdir(pagesDir, { recursive: true });

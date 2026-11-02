@@ -5,14 +5,65 @@ interface Props {
 }
 
 import ShipCard from "../components/ShipCard.astro";
+import meta from "../data/meta.json";
 import profile from "../data/profile.json";
 import ships from "../data/ships.json";
-import meta from "../data/meta.json";
-import { pct, num, compact, date, relative, typeVar } from "../utils/format";
+import { compact, date, num, pct, relative, typeVar } from "../utils/format";
 
 // 独立部署时取 BASE_URL；嵌进博客时由外层传入
 const { basePath } = Astro.props;
 const base = basePath ?? import.meta.env.BASE_URL.replace(/\/$/, "");
+
+/** 排位数据在 JSON 里可能是 null，直接读会被推断成 never */
+interface RankedStats {
+	battles: number;
+	wins: number;
+	winrate: number;
+	damage: number;
+	avgDamage: number;
+	frags: number;
+	avgFrags: number;
+	kd: number;
+	survival: number;
+	avgXp: number;
+	hitRate: number;
+}
+const ranked = (profile as { ranked?: RankedStats | null }).ranked;
+const rankedItems =
+	ranked && ranked.battles > 0
+		? [
+				{
+					label: "场次",
+					value: num(ranked.battles),
+					foot: `胜 ${ranked.wins}`,
+				},
+				{
+					label: "胜率",
+					value: pct(ranked.winrate),
+					foot: `${ranked.wins} 场胜利`,
+				},
+				{
+					label: "场均伤害",
+					value: num(ranked.avgDamage),
+					foot: `累计 ${compact(ranked.damage)}`,
+				},
+				{
+					label: "场均击杀",
+					value: ranked.avgFrags.toFixed(2),
+					foot: `K/D ${ranked.kd.toFixed(2)}`,
+				},
+				{
+					label: "生存率",
+					value: pct(ranked.survival),
+					foot: `${num(ranked.frags)} 次击杀`,
+				},
+				{
+					label: "场均经验",
+					value: num(ranked.avgXp),
+					foot: `命中率 ${pct(ranked.hitRate)}`,
+				},
+			]
+		: [];
 const p = profile.pvp;
 
 // —— 舰种环形图 ——
@@ -40,7 +91,9 @@ const maxTierBattles = Math.max(...profile.byTier.map((t) => t.battles), 1);
 
 const topShips = ships.slice(0, 6);
 const hasRecent = ships.some((s) => s.lastBattleAt > 0);
-const recent = [...ships].sort((a, b) => b.lastBattleAt - a.lastBattleAt).slice(0, 5);
+const recent = [...ships]
+	.sort((a, b) => b.lastBattleAt - a.lastBattleAt)
+	.slice(0, 5);
 
 // 总 PR 与三项相对基准的偏差
 const overall = profile.overall as any;
@@ -63,16 +116,21 @@ const records = [
 /** 国服接口没有逐船的战斗时间，「最近出港」换成武备效率 */
 const efficiency = [
 	{ label: "主炮命中率", value: pct(p.hitRate) },
-	{ label: "鱼雷命中率", value: p.torpedoShots > 0 ? pct(p.torpedoHitRate) : "—" },
+	{
+		label: "鱼雷命中率",
+		value: p.torpedoShots > 0 ? pct(p.torpedoHitRate) : "—",
+	},
 	{ label: "场均经验", value: num(p.avgXp) },
 	{ label: "K / D", value: p.kd.toFixed(2) },
 ];
 
 const RECORD_ICONS: Record<string, string> = {
-	damage: "M12 2.8 4.6 6.4v5.2c0 4.4 3.1 8.4 7.4 9.6 4.3-1.2 7.4-5.2 7.4-9.6V6.4L12 2.8Z",
+	damage:
+		"M12 2.8 4.6 6.4v5.2c0 4.4 3.1 8.4 7.4 9.6 4.3-1.2 7.4-5.2 7.4-9.6V6.4L12 2.8Z",
 	kill: "M12 3v3M12 18v3M3 12h3M18 12h3M12 7.5A4.5 4.5 0 1 0 12 16.5a4.5 4.5 0 0 0 0-9Z",
 	xp: "M12 3.2 14.9 9l6.4.9-4.6 4.5 1.1 6.4L12 17.8 6.2 20.8l1.1-6.4L2.7 9.9 9.1 9 12 3.2Z",
-	plane: "M2.5 13.2 12 10l9.5 3.2v1.6l-7.5-.6-1.4 4.3 2.4 1.6v1.4L12 20.4l-3 1.1v-1.4l2.4-1.6-1.4-4.3-7.5.6v-1.6Z",
+	plane:
+		"M2.5 13.2 12 10l9.5 3.2v1.6l-7.5-.6-1.4 4.3 2.4 1.6v1.4L12 20.4l-3 1.1v-1.4l2.4-1.6-1.4-4.3-7.5.6v-1.6Z",
 };
 ---
 
@@ -275,21 +333,14 @@ const RECORD_ICONS: Record<string, string> = {
 
 		<!-- 排位（有数据才显示） -->
 		{
-			profile.ranked && profile.ranked.battles > 0 && (
+			rankedItems.length > 0 && (
 				<section class="section">
 					<div class="section-head">
 						<h2 class="section-title">排位赛</h2>
 						<span class="section-hint">Ranked Solo</span>
 					</div>
 					<div class="grid-metrics" style="margin-top:0">
-						{[
-							{ label: "场次", value: num(profile.ranked.battles), foot: `胜 ${profile.ranked.wins}` },
-							{ label: "胜率", value: pct(profile.ranked.winrate), foot: `${profile.ranked.wins} 场胜利` },
-							{ label: "场均伤害", value: num(profile.ranked.avgDamage), foot: `累计 ${compact(profile.ranked.damage)}` },
-							{ label: "场均击杀", value: profile.ranked.avgFrags.toFixed(2), foot: `K/D ${profile.ranked.kd.toFixed(2)}` },
-							{ label: "生存率", value: pct(profile.ranked.survival), foot: `${num(profile.ranked.frags)} 次击杀` },
-							{ label: "场均经验", value: num(profile.ranked.avgXp), foot: `命中率 ${pct(profile.ranked.hitRate)}` },
-						].map((m) => (
+						{rankedItems.map((m) => (
 							<div class="card metric">
 								<span class="metric-label">{m.label}</span>
 								<span class="metric-value">{m.value}</span>
