@@ -970,6 +970,113 @@ main {
 	box-shadow: 0 0 0 4px var(--wows-primary-ghost);
 }
 
+/* 自定义下拉：原生 select 的展开列表由系统绘制，改不动样式，所以自己画一套 */
+.w-select {
+	position: relative;
+	flex: 0 0 auto;
+}
+
+.w-select .w-select-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.6rem 0.9rem 0.6rem 0.95rem;
+	border-radius: 999px;
+	border: 1px solid var(--wows-card-border);
+	background: var(--wows-card-bg);
+	color: var(--wows-text);
+	font-size: 0.84rem;
+	line-height: 1.2;
+	white-space: nowrap;
+	transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.w-select .w-select-btn:hover {
+	border-color: oklch(0.64 0.14 var(--wows-hue) / 0.45);
+}
+
+.w-select.is-open .w-select-btn {
+	border-color: oklch(0.64 0.14 var(--wows-hue) / 0.6);
+	box-shadow: 0 0 0 4px var(--wows-primary-ghost);
+}
+
+.w-select-chevron {
+	width: 0.8rem;
+	height: 0.8rem;
+	color: var(--wows-text-faint);
+	transition: transform 0.22s var(--wows-ease);
+}
+
+.w-select.is-open .w-select-chevron {
+	transform: rotate(180deg);
+}
+
+.w-select-menu {
+	position: absolute;
+	top: calc(100% + 0.4rem);
+	left: 0;
+	z-index: 40;
+	min-width: 100%;
+	max-height: 17rem;
+	overflow-y: auto;
+	margin: 0;
+	padding: 0.35rem;
+	list-style: none;
+	background: var(--wows-card-bg);
+	border: 1px solid var(--wows-card-border);
+	border-radius: 0.9rem;
+	box-shadow: var(--wows-card-shadow);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(-5px);
+	transition: opacity 0.16s var(--wows-ease), transform 0.16s var(--wows-ease), visibility 0.16s;
+	scrollbar-width: thin;
+}
+
+.w-select[data-align="right"] .w-select-menu {
+	left: auto;
+	right: 0;
+}
+
+.w-select.is-open .w-select-menu {
+	opacity: 1;
+	visibility: visible;
+	transform: none;
+}
+
+.w-select-option {
+	padding: 0.45rem 0.7rem;
+	border-radius: 0.6rem;
+	font-size: 0.84rem;
+	color: var(--wows-text-soft);
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background-color 0.14s, color 0.14s;
+}
+
+.w-select-option:hover {
+	background: var(--wows-primary-ghost);
+	color: var(--wows-text);
+}
+
+.w-select-option.is-selected {
+	background: var(--wows-primary-soft);
+	color: var(--wows-primary-strong);
+	font-weight: 600;
+}
+
+@media (max-width: 720px) {
+	.w-select {
+		flex: 1 1 calc(50% - 0.4rem);
+	}
+
+	.w-select .w-select-btn {
+		width: 100%;
+		justify-content: space-between;
+	}
+}
+
+
 .select-wrap {
 	position: relative;
 }
