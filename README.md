@@ -200,6 +200,24 @@ pnpm sync /path/to/Firefly
 
 脚本结束时会清掉博客的 `.astro` 缓存。Astro 的增量缓存认不出「文件被外部覆盖」，不清的话下一次构建会沿用旧的编译结果。
 
+### 数据同步
+
+数据不用手动拷。构建站点时，`src/pages/data/[name].json.ts` 会把 `profile` / `ships` / `meta` 输出成静态 JSON，地址是：
+
+```text
+https://shaddocknh3.github.io/wows-page/data/profile.json
+https://shaddocknh3.github.io/wows-page/data/ships.json
+https://shaddocknh3.github.io/wows-page/data/meta.json
+```
+
+博客那边的 `scripts/fetch-wows-data.mjs` 会在 `pnpm build` 的第一步把这几个文件拉到 `src/wows/data/`，所以这边每周更新完数据，博客下次构建就会自动跟上，不用再跑 `pnpm sync`。
+
+> [!NOTE]
+> `pnpm sync` 现在只负责组件和样式。只有改了 `src/views/`、`src/components/`、`src/styles/` 才需要重新同步；数据是构建时拉的。
+
+> [!TIP]
+> 拉取失败时会沿用博客仓库里的旧数据，不会让构建挂掉。离线开发想跳过这一步，设置 `WOWS_DATA_SKIP=1`，或者手动跑 `pnpm wows:data` 只更新数据。
+
 ### 加导航
 
 在博客的 `src/config/navBarConfig.ts` 里加一项，`pnpm sync` 结束时会把这行打印出来：
