@@ -231,7 +231,9 @@ pnpm sync /path/to/Firefly
 
 ### GitHub Pages
 
-`.github/workflows/deploy.yml` 已经写好，每次 push 自动构建发布。项目站点会自动把 `BASE_PATH` 设成 `/<repo>`，绑定自定义域名时改成 `/`。
+`.github/workflows/deploy.yml` 已经配好，Pages 的 Source 选 `GitHub Actions` 之后，每次 push 都会自动构建发布。项目站点会自动把 `BASE_PATH` 设成 `/<repo>`，绑定自定义域名时改成 `/`。
+
+当前线上地址：<https://shaddocknh3.github.io/wows-page/>
 
 > [!NOTE]
 > GitHub Pages 对私有仓库需要 Pro 订阅，仓库公开才能免费使用。
