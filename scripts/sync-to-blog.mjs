@@ -61,9 +61,9 @@ async function main() {
 	await rm(wowsDir, { recursive: true, force: true });
 	await mkdir(path.join(wowsDir, "styles"), { recursive: true });
 	await mkdir(path.join(wowsDir, "utils"), { recursive: true });
+	await mkdir(path.join(wowsDir, "data"), { recursive: true });
 
 	await cp(path.join(ROOT, "src", "views"), path.join(wowsDir, "views"), { recursive: true });
-	await cp(path.join(ROOT, "src", "components"), path.join(wowsDir, "components"), { recursive: true });
 	await cp(path.join(ROOT, "src", "components"), path.join(wowsDir, "components"), { recursive: true });
 	// 只带页面要用的三个文件；baselines 是抓取阶段用的，博客构建不需要
 	for (const f of ["profile.json", "ships.json", "meta.json"]) {
