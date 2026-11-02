@@ -224,7 +224,6 @@ const SORT_OPTIONS = [
 			点击表头可切换排序。胜率颜色：绿 ≥52% · 青 52-58% · 黄 46-52% · 红 &lt;46%。
 		</p>
 	</div>
-</Base>
 
 <script>
 function initShipsPage() {
@@ -324,7 +323,7 @@ function initShipsPage() {
 
 	// 方便截图/调试：?open=1 时展开第一个下拉
 	if (new URLSearchParams(location.search).get("open")) {
-		selects[0]?.classList.add("is-open");
+		setTimeout(() => selects[0]?.querySelector<HTMLButtonElement>(".w-select-btn")?.click(), 200);
 	}
 
 	q.addEventListener("input", apply);

@@ -168,23 +168,6 @@ const RECORD_ICONS: Record<string, string> = {
 									</span>
 								</div>
 							</div>
-							<details class="score-how">
-								<summary>怎么算的</summary>
-								<div>
-									<p>
-										Personal Rating，公式与 wows-numbers 公开口径一致：把实际的总伤害、总击杀、总胜场
-										分别除以「场次 × 该船全服平均」，得到三个比值，再按
-										700 / 300 / 150 的权重加权。
-									</p>
-									<p>
-										全服平均值取自 49 万活跃账号、18 亿场随机战的统计样本；
-										找不到同名船时退到「同舰种同等级」的平均值。
-									</p>
-									<p class="section-hint">
-										国服与国际服的环境不同，数值会有偏差，看趋势比看绝对值靠谱。
-									</p>
-								</div>
-							</details>
 						</div>
 						<div class="score-parts">
 							{parts.map((p: any) => (
