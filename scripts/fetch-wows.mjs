@@ -177,19 +177,22 @@ function buildProfile({ nickname, accountId, realm, createdAt, lastBattleAt, lev
 async function fetchJson(url, init = {}, attempt = 0) {
 	try {
 		const res = await fetch(url, {
-			headers: { "User-Agent": "wows-page/1.0 (+https://github.com/ShaddockNH3/wows-page)", ...init.headers },
+			headers: { "User-Agent": "wows-page/1.0 (+https://github.com/ShaddockNH3/wows-page)", ...(init.headers ?? {}) },
 			...init,
 		});
 		if (!res.ok) throw new Error(`HTTP ${res.status}`);
 		const json = await res.json();
-		if (json.status === "error") {
+		if (json?.status === "error") {
 			const err = json.error ?? {};
-			if (err.code === 4071 || /REQUEST_LIMIT|503/i.test(err.message ?? "")) {
-				throw Object.assign(new Error(`限流：${err.message}`), { retry: true });
+			const code = typeof err === "object" ? err.code : "?";
+			const msg = typeof err === "object" ? err.message : err;
+			if (/REQUEST_LIMIT|503/i.test(String(msg))) {
+				throw Object.assign(new Error(`限流：${msg}`), { retry: true });
 			}
-			throw new Error(`${err.code ?? "?"} ${err.message ?? json.error ?? "unknown error"}`);
+			throw new Error(`${code} ${msg ?? "unknown error"}`);
 		}
-		return json;
+		// 官方 API / Vortex / GraphQL 的有效载荷都在 data 字段里
+		return json && typeof json === "object" && "data" in json ? json.data : json;
 	} catch (e) {
 		if (attempt < 3) {
 			await sleep(1200 * (attempt + 1));
@@ -216,7 +219,9 @@ async function loadCnGlossary(base) {
 	try {
 		const s = await stat(cacheFile);
 		if (Date.now() - s.mtimeMs < 7 * 86_400_000) {
-			return JSON.parse(await readFile(cacheFile, "utf8"));
+			// 旧缓存可能存的是整个响应（带 data 包装），统一剥出来
+			const cached = JSON.parse(await readFile(cacheFile, "utf8"));
+			return cached?.data ?? cached;
 		}
 	} catch {
 		// 没有缓存
@@ -234,7 +239,7 @@ async function loadCnGlossary(base) {
 	});
 	await mkdir(CACHE_DIR, { recursive: true });
 	await writeFile(cacheFile, JSON.stringify(json));
-	return json.data;
+	return json;
 }
 
 async function fetchCn(cfg) {
@@ -243,8 +248,7 @@ async function fetchCn(cfg) {
 	console.log(`→ 国服 Vortex，昵称 ${cfg.nickname}`);
 
 	// 1. 搜索
-	const search = await get(`/api/accounts/search/autocomplete/${encodeURIComponent(cfg.nickname)}/`);
-	const list = search.data ?? [];
+	const list = (await get(`/api/accounts/search/autocomplete/${encodeURIComponent(cfg.nickname)}/`)) ?? [];
 	const exact = list.find((a) => a.name.toLowerCase() === cfg.nickname.toLowerCase());
 	if (!exact) {
 		console.error(`✗ 找不到昵称「${cfg.nickname}」`);
@@ -260,9 +264,9 @@ async function fetchCn(cfg) {
 		get(`/api/accounts/${exact.spa_id}/ships/pvp/`),
 		loadCnGlossary(base),
 	]);
-	const info = accRaw.data[exact.spa_id];
+	const info = accRaw[String(exact.spa_id)];
 	const basic = info.statistics?.basic ?? {};
-	const shipStats = shipsRaw.data[exact.spa_id]?.statistics ?? {};
+	const shipStats = shipsRaw[String(exact.spa_id)]?.statistics ?? {};
 
 	const glossMap = new Map((gloss.vehicles ?? []).map((v) => [String(v.id), v]));
 
@@ -337,12 +341,7 @@ async function fetchOfficial(cfg) {
 		process.exit(1);
 	}
 	const base = `https://${host}`;
-	const api = (endpoint, params) => {
-		const url = new URL(`/wows/${endpoint}`, base);
-		for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
-		url.searchParams.set("application_id", cfg.appId);
-		return fetchJson(url, { headers: {} });
-	};
+	const api = officialApi(base, cfg.appId);
 
 	console.log(`→ ${REALM_LABEL[cfg.realm]}（官方 API），昵称 ${cfg.nickname}`);
 
@@ -370,7 +369,7 @@ async function fetchOfficial(cfg) {
 
 	// 3. 船的元数据（中英双名）
 	const shipIds = (statsData?.[exact.account_id] ?? []).map((r) => r.ship_id);
-	const meta = await fetchOfficialShipMeta(cfg.appId, shipIds);
+	const meta = await fetchOfficialShipMeta(base, cfg.appId, shipIds, ["zh-cn", "en"]);
 
 	const ships = (statsData?.[exact.account_id] ?? [])
 		.filter((row) => num(row.pvp?.battles) > 0)
@@ -410,11 +409,21 @@ async function fetchOfficial(cfg) {
 	return { profile, ships, source: base };
 }
 
-async function fetchOfficialShipMeta(appId, shipIds, language) {
+function officialApi(base, appId) {
+	return (endpoint, params) => {
+		const url = new URL(`/wows/${endpoint}`, base);
+		for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
+		url.searchParams.set("application_id", appId);
+		return fetchJson(url, { headers: {} });
+	};
+}
+
+async function fetchOfficialShipMeta(base, appId, shipIds, language) {
 	const ids = [...new Set(shipIds)];
 	const out = new Map();
 	for (const lang of language) {
 		const map = out.get(lang) ?? new Map();
+		const api = officialApi(base, appId);
 		for (let i = 0; i < ids.length; i += 90) {
 			const chunk = ids.slice(i, i + 90);
 			const data = await api("encyclopedia/ships/", {
