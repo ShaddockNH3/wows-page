@@ -37,9 +37,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/data
-          if git diff --staged --quiet; then
-            echo "数据没有变化"
-          else
-            git commit -m "chore(data): 更新战舰世界战绩数据"
-            git push
+
+          # meta.json 里只有一个抓取时间戳，每周都会变。
+          # 除了它以外没有别的内容变化时，不提交，避免一堆无意义的提交。
+          CHANGED=$(git diff --staged --name-only | grep -v '^src/data/meta.json$' | wc -l | tr -d ' ')
+          if [ "$CHANGED" = "0" ]; then
+            echo "::notice::除时间戳外数据没有变化，跳过提交"
+            exit 0
           fi
+
+          git commit -m "chore(data): 更新战舰世界战绩数据"
+          git push
