@@ -8,6 +8,7 @@
 
 - 纯静态：构建期就把数据抓成 JSON，运行时零请求、零 key
 - 无框架运行时：Astro + 手写 CSS，产物只有几十 KB
+- **两套配色**：`blog`（跟博客主题色一致）和 `wows`（海军蓝），导航栏一键切换，会记住选择
 - 深浅色、响应式、可筛选的逐船战绩表
 - 不改动博客本体，可独立部署，也可以挂在 `/wows/` 子路径
 
@@ -97,12 +98,22 @@ WOWS_APP_ID=xxxx WOWS_NICKNAME=凉柚NH3 WOWS_REALM=cn pnpm fetch
 
 | 想改什么 | 改哪里 |
 | --- | --- |
-| 站点标题、主题色相、博客地址 | `src/config.ts` |
+| 站点标题、默认主题、博客地址 | `src/config.ts` |
+| 两套配色的色相 | `src/config.ts` 的 `themes` |
 | 服务器、昵称 | `wows.config.json` |
 | 配色变量、圆角、间距 | `src/styles/global.css` 顶部 `:root` |
 | 指标口径、要展示哪些数据 | `scripts/fetch-wows.mjs` |
 
-主题色相 `hue`：210 是海军蓝，360 是博客默认的粉，265 是紫。
+### 两套配色
+
+| key | 色相 | 说明 |
+| --- | --- | --- |
+| `blog` | 360 | 玫粉，跟博客的 `themeColor.hue` 一致，默认 |
+| `wows` | 210 | 海军蓝，更贴近游戏，圆角也收紧一点 |
+
+导航栏那枚调色盘按钮切换，选完写进 `localStorage`，下次进来还是这套。
+想加第三套就往 `themes` 里加一行，`data-theme` 会自动生成对应的 `--hue`。
+URL 参数也能直接指定：`/?palette=wows`、`/?theme=light`，方便给别人看某个特定状态。
 
 ## 数据说明
 

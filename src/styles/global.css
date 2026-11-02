@@ -340,6 +340,40 @@ main {
 	height: 1.15rem;
 }
 
+/* 配色切换按钮上的小圆点，直接显示当前主题色 */
+.icon-btn-dot {
+	position: relative;
+}
+
+.icon-btn-dot::after {
+	content: "";
+	position: absolute;
+	right: 5px;
+	bottom: 5px;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--primary);
+	box-shadow: 0 0 0 2px var(--page-bg);
+	transition: background-color 0.3s var(--ease);
+}
+
+/* 海军这套把棱角收紧一点，跟游戏 UI 的气质更近 */
+:root[data-theme="wows"] {
+	--radius-large: 0.85rem;
+	--radius-xl: 1.3rem;
+}
+
+/* 博客这套暗色下把底色收得更中性，粉色只留在强调色和光斑上，免得发闷 */
+:root.dark[data-theme="blog"] {
+	--primary: oklch(0.71 0.13 360);
+	--primary-strong: oklch(0.8 0.11 360);
+	--page-bg: oklch(0.185 0.013 355);
+	--page-bg-deep: oklch(0.225 0.016 355);
+	--card-bg: oklch(0.252 0.016 355);
+	--card-bg-soft: oklch(0.285 0.019 355);
+}
+
 :root.dark .icon-sun,
 :root:not(.dark) .icon-moon {
 	display: none;

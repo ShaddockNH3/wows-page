@@ -1,5 +1,5 @@
 ---
-import { siteConfig } from "../config";
+import { siteConfig, themes } from "../config";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 import "../styles/global.css";
@@ -12,10 +12,13 @@ interface Props {
 const { title, description = siteConfig.description } = Astro.props;
 const pageTitle = title ? `${title} · ${siteConfig.title}` : `${siteConfig.title} · ${siteConfig.author}`;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
+const paletteCss = Object.entries(themes)
+	.map(([key, t]) => `:root[data-theme="${key}"]{--hue:${t.hue}}`)
+	.join("");
 ---
 
 <!doctype html>
-<html lang="zh-CN" style={`--hue: ${siteConfig.hue}`}>
+<html lang="zh-CN" data-theme={siteConfig.defaultTheme}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -29,15 +32,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString(
 		<meta name="theme-color" content="#0f1a26" />
 		<link rel="icon" href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/favicon.svg`} type="image/svg+xml" />
 
+		<style is:inline set:html={paletteCss}></style>
+
 		<script is:inline>
-			// 在样式生效前定下配色，避免闪白
+			// 在样式生效前定下配色，避免闪一下
 			(() => {
-				const q = new URLSearchParams(location.search).get("theme");
-				const mode = q || localStorage.getItem("wows-theme") || "system";
+				const root = document.documentElement;
+				const q = new URLSearchParams(location.search);
+				const palette = q.get("palette") || localStorage.getItem("wows-palette");
+				if (palette) root.dataset.theme = palette;
+
+				const mode = q.get("theme") || localStorage.getItem("wows-theme") || "system";
 				const dark =
 					mode === "dark" ||
 					(mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-				if (dark) document.documentElement.classList.add("dark");
+				if (dark) root.classList.add("dark");
 			})();
 		</script>
 	</head>
@@ -50,17 +59,40 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString(
 
 		<script>
 			const root = document.documentElement;
-			const btn = document.getElementById("theme-toggle");
-			btn?.addEventListener("click", () => {
+			const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+			document.getElementById("theme-toggle")?.addEventListener("click", () => {
 				const isDark = root.classList.toggle("dark");
 				localStorage.setItem("wows-theme", isDark ? "dark" : "light");
 			});
-			window
-				.matchMedia("(prefers-color-scheme: dark)")
-				.addEventListener("change", (e) => {
-					if (localStorage.getItem("wows-theme")) return;
-					root.classList.toggle("dark", e.matches);
-				});
+
+			prefersDark.addEventListener("change", (e) => {
+				if (localStorage.getItem("wows-theme")) return;
+				root.classList.toggle("dark", e.matches);
+			});
+
+			// 配色主题：blog / wows 两套
+			document.getElementById("palette-toggle")?.addEventListener("click", () => {
+				const next = root.dataset.theme === "wows" ? "blog" : "wows";
+				const swap = () => {
+					root.dataset.theme = next;
+					localStorage.setItem("wows-palette", next);
+					const btn = document.getElementById("palette-toggle");
+					if (btn) btn.dataset.palette = next;
+				};
+				if (document.startViewTransition) {
+					document.startViewTransition(swap);
+				} else {
+					swap();
+				}
+			});
+
+			// 同步按钮上的小圆点颜色
+			const syncPaletteDot = () => {
+				const btn = document.getElementById("palette-toggle");
+				if (btn) btn.dataset.palette = root.dataset.theme ?? "blog";
+			};
+			syncPaletteDot();
 		</script>
 	</body>
 </html>
