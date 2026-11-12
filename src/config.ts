@@ -30,7 +30,7 @@ export const siteConfig = {
 	defaultTheme: "blog" as ThemeKey,
 
 	/** 默认配色模式：light | dark | system */
-	defaultMode: "system" as "light" | "dark" | "system",
+	defaultMode: "light" as "light" | "dark" | "system",
 
 	/** 页脚署名 */
 	author: "ShaddockNH3",

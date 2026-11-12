@@ -31,15 +31,16 @@ const paletteCss = Object.entries(themes)
 
 		<style is:inline set:html={paletteCss}></style>
 
-		<script is:inline>
-			// 在样式生效前定下配色，避免闪一下
+		<script is:inline define:vars={{ defaultMode: siteConfig.defaultMode }}>
+			// 在样式生效前定下明暗，避免闪一下。
+			// 不读 localStorage：页面里没有切换入口，留着只会让旧选择一直生效。
 			(() => {
 				const root = document.documentElement;
 				const q = new URLSearchParams(location.search);
-				const palette = q.get("palette") || localStorage.getItem("wows-palette");
+				const palette = q.get("palette");
 				if (palette) root.dataset.theme = palette;
 
-				const mode = q.get("theme") || localStorage.getItem("wows-theme") || "system";
+				const mode = q.get("theme") || defaultMode;
 				const dark =
 					mode === "dark" ||
 					(mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
