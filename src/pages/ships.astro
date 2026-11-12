@@ -1,9 +1,4 @@
 ---
-import Base from "../layouts/Base.astro";
-import ShipsView from "../views/ShipsView.astro";
-import profile from "../data/profile.json";
+// 舰船列表已经并进首页，旧链接重定向过去
+return Astro.redirect("/");
 ---
-
-<Base title="舰船战绩" description={`${profile.nickname} 的逐船战绩`}>
-	<ShipsView />
-</Base>

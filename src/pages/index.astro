@@ -1,8 +1,62 @@
 ---
+import WowsShips from "../components/WowsShips.svelte";
 import Base from "../layouts/Base.astro";
-import ProfileView from "../views/ProfileView.astro";
+import meta from "../data/meta.json";
+import profile from "../data/profile.json";
+import ships from "../data/ships.json";
+
+const p = profile.pvp;
+const overall = profile.overall;
+
+/** JSON 里的时间戳是秒，统一按 UTC 切成日期 */
+const day = (sec: number) => new Date(sec * 1000).toISOString().slice(0, 10);
+const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
+const num = (v: number) => v.toLocaleString("en-US");
+
+const kpis = [
+	{ label: "场次", value: num(p.battles), unit: "" },
+	{ label: "胜率", value: pct(p.winrate), unit: "" },
+	{ label: "场均伤害", value: num(p.avgDamage), unit: "" },
+	{ label: "最高伤害", value: num(p.maxDamage), unit: "" },
+	{ label: "PR", value: overall ? num(overall.pr) : "—", unit: overall ? overall.label : "", hi: true },
+];
 ---
 
-<Base>
-	<ProfileView />
+<Base title="舰长档案">
+	<header class="wows-top">
+		<span class="wows-brand">舰长档案</span>
+		<a class="wows-top-link" href="https://blog.attilio.cc">返回博客</a>
+	</header>
+
+	<div class="wows-page">
+		<section class="wows-card wows-profile">
+			<div>
+				<div class="wows-title-row">
+					<span class="wows-name">{profile.nickname}</span>
+					<span class="wows-badge">{profile.realmLabel}</span>
+				</div>
+				<div class="wows-meta">
+					<span>{day(profile.createdAt)} 入坑</span>
+					<span>舰长等级 {profile.levelingTier}</span>
+					<span>{ships.length} 艘出战</span>
+				</div>
+			</div>
+			<span class="wows-stamp">更新于 {meta.generatedAt.slice(0, 10)}</span>
+		</section>
+
+		<div class="wows-kpis">
+			{kpis.map((k) => (
+				<div class="wows-kpi">
+					<div class="wows-kpi-t">{k.label}</div>
+					<div class="wows-kpi-v" data-hi={k.hi ? "true" : undefined}>
+						{k.value}{k.unit && <span class="wows-kpi-u">{k.unit}</span>}
+					</div>
+				</div>
+			))}
+		</div>
+
+		<section class="wows-card">
+			<WowsShips {ships} client:load />
+		</section>
+	</div>
 </Base>

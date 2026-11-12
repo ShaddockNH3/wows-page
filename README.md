@@ -16,7 +16,7 @@
 - [命令](#命令)
 - [数据来源](#数据来源)
 - [PR 评分](#pr-评分)
-- [接入 Firefly 博客](#接入-firefly-博客)
+- [与博客的关系](#与博客的关系)
 - [独立部署](#独立部署)
 - [自定义](#自定义)
 - [说明](#说明)
@@ -56,7 +56,6 @@ pnpm dev      # http://localhost:4321
 | `pnpm baselines` | 抓全服基准（PR 用），四周一次就够 |
 | `pnpm dev` | 本地预览 |
 | `pnpm build` | 构建到 `dist/` |
-| `pnpm sync <博客目录>` | 同步进 Firefly 博客 |
 
 抓到的 JSON 是提交进仓库的，所以 CI 不依赖网络也能构建。
 
@@ -124,33 +123,17 @@ wows-numbers 的期望值接口被 Cloudflare 挡着，改用 [wowsdb](https://w
 
 > 国服与国际服的船池、玩家分布都不一样，同一套基准套上去会偏低。看趋势比看绝对值靠谱。
 
-## 接入 Firefly 博客
+## 与博客的关系
 
-推荐用法。页面走博客的三栏网格，导航、壁纸、侧栏、页脚、转场都是博客的，主题色跟随博客的 `--hue`。
+博客里已经内置了一份（`/wows/`），用的是同一套组件和同一份数据：
+`src/components/pages/wows/WowsShips.svelte` 加 `src/data/wows/*.json`。
 
-![嵌进博客后的总览页](docs/embed-home.jpg)
+颜色全部由主题令牌提供 —— `--primary`、`--card-bg`、`--line-divider`、`--deep-text`、
+`--content-meta`、`--btn-regular-bg`、`--radius-large`。所以组件两边能原样共用，
+不用维护两套皮肤。本项目的 `src/styles/theme.css` 只干一件事：把这些变量映射到自己的 `--wows-*` 色板。
 
-![嵌进博客后的舰船页](docs/embed-ships.jpg)
-
-```bash
-pnpm sync /path/to/Firefly
-```
-
-只写 `<blog>/src/wows/{views,components,styles,data,utils}` 和 `<blog>/src/pages/wows/{index,ships}.astro`，博客其它文件不动。
-
-脚本结束会清掉博客的 `.astro` 缓存。Astro 的增量缓存认不出「文件被外部覆盖」，不清的话下次构建会沿用旧结果。
-
-数据不用手动拷。本站构建时会把 `profile` / `ships` / `meta` 输出成静态 JSON，博客的 `scripts/fetch-wows-data.mjs` 在 `pnpm build` 第一步拉过去。
-
-拉取失败时沿用博客里的旧数据，不会让构建挂掉。离线开发想跳过，设 `WOWS_DATA_SKIP=1`。
-
-导航要在博客的 `src/config/navBarConfig.ts` 里手动加一项，`pnpm sync` 结束时会把这行打印出来：
-
-```ts
-{ name: "舰长档案", url: "/wows/", icon: "material-symbols:anchor" }
-```
-
-> `pnpm sync` 只负责组件和样式。改数据不用同步，改 `src/views/`、`src/components/`、`src/styles/` 才需要重跑。
+改版式时先改博客那份，再把 `WowsShips.svelte` 拷回来。唯一的差异是分页：博客用主题自带的
+`ClientPagination`（依赖 i18n），这里是等宽的一对小按钮。
 
 ## 独立部署
 

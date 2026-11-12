@@ -1,8 +1,6 @@
 ---
 import { siteConfig, themes } from "../config";
-import Navbar from "../components/Navbar.astro";
-import Footer from "../components/Footer.astro";
-import "../styles/global.css";
+import "../styles/theme.css";
 
 interface Props {
 	title?: string;
@@ -29,7 +27,6 @@ const paletteCss = Object.entries(themes)
 		<meta property="og:title" content={pageTitle} />
 		<meta property="og:description" content={description} />
 		<meta property="og:type" content="website" />
-		<meta name="theme-color" content="#0f1a26" />
 		<link rel="icon" href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/favicon.svg`} type="image/svg+xml" />
 
 		<style is:inline set:html={paletteCss}></style>
@@ -52,49 +49,7 @@ const paletteCss = Object.entries(themes)
 	</head>
 	<body>
 		<div class="wows-scope">
-			<Navbar />
-			<main>
-				<slot />
-			</main>
-			<Footer />
+			<slot />
 		</div>
-
-		<script>
-			const root = document.documentElement;
-			const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
-
-			document.getElementById("theme-toggle")?.addEventListener("click", () => {
-				const isDark = root.classList.toggle("dark");
-				localStorage.setItem("wows-theme", isDark ? "dark" : "light");
-			});
-
-			prefersDark.addEventListener("change", (e) => {
-				if (localStorage.getItem("wows-theme")) return;
-				root.classList.toggle("dark", e.matches);
-			});
-
-			// 配色主题：blog / wows 两套
-			document.getElementById("palette-toggle")?.addEventListener("click", () => {
-				const next = root.dataset.theme === "wows" ? "blog" : "wows";
-				const swap = () => {
-					root.dataset.theme = next;
-					localStorage.setItem("wows-palette", next);
-					const btn = document.getElementById("palette-toggle");
-					if (btn) btn.dataset.palette = next;
-				};
-				if (document.startViewTransition) {
-					document.startViewTransition(swap);
-				} else {
-					swap();
-				}
-			});
-
-			// 同步按钮上的小圆点颜色
-			const syncPaletteDot = () => {
-				const btn = document.getElementById("palette-toggle");
-				if (btn) btn.dataset.palette = root.dataset.theme ?? "blog";
-			};
-			syncPaletteDot();
-		</script>
 	</body>
 </html>
