@@ -6,9 +6,9 @@
 
 线上地址：<https://shaddocknh3.github.io/wows-page/>
 
-![总览页](docs/preview-pr.jpg)
+![账号总览与筛选](docs/preview-pr.jpg)
 
-![舰船页](docs/preview-ships.jpg)
+![舰船列表](docs/preview-ships.jpg)
 
 ## 目录
 
