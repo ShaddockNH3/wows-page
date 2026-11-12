@@ -10,9 +10,9 @@
 （舰种 / 国家 / 等级 / 排序），下面是逐船战绩，每页 15 条。舰船列表已经并进首页，旧的 `/ships`
 链接会重定向回来。
 
-![账号总览与筛选](docs/preview-pr.jpg)
+![账号总览与筛选](docs/preview-overview.jpg)
 
-![舰船列表](docs/preview-ships.jpg)
+![舰船列表](docs/preview-fleet.jpg)
 
 ## 目录
 
