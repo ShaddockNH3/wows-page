@@ -31,21 +31,34 @@
 
 	type SortKey = (typeof SORTS)[number]["key"];
 
-	const types = $derived([
-		{ key: "全部", n: ships.length },
-		...Array.from(new Set(ships.map((s) => s.typeLabel))).map((label) => ({
-			key: label,
-			n: ships.filter((s) => s.typeLabel === label).length,
-		})),
-	]);
+	/** 按某个字段归组，多的排前面 */
+	const groupBy = (pick: (s: Ship) => string) => {
+		const map = new Map<string, number>();
+		for (const s of ships) {
+			const k = pick(s);
+			map.set(k, (map.get(k) ?? 0) + 1);
+		}
+		return [...map.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+	};
+
+	const types = $derived(groupBy((s) => s.typeLabel));
+	const nations = $derived(groupBy((s) => s.nationLabel));
+	const tiers = $derived([...new Set(ships.map((s) => s.tier))].sort((a, b) => a - b));
 
 	let type = $state("全部");
+	let nation = $state("全部");
+	let tier = $state<number | "全部">("全部");
 	let sort = $state<SortKey>("battles");
 	let page = $state(1);
 
 	const list = $derived(
 		ships
-			.filter((s) => type === "全部" || s.typeLabel === type)
+			.filter(
+				(s) =>
+					(type === "全部" || s.typeLabel === type) &&
+					(nation === "全部" || s.nationLabel === nation) &&
+					(tier === "全部" || s.tier === tier),
+			)
 			.slice()
 			.sort((a, b) => Number(b[sort] ?? 0) - Number(a[sort] ?? 0)),
 	);
@@ -55,6 +68,14 @@
 
 	function pickType(v: string) {
 		type = v;
+		page = 1;
+	}
+	function pickNation(v: string) {
+		nation = v;
+		page = 1;
+	}
+	function pickTier(v: number | "全部") {
+		tier = v;
 		page = 1;
 	}
 	function pickSort(v: SortKey) {
@@ -69,10 +90,31 @@
 <div class="wsp-bar">
 	<div class="wsp-row">
 		<span class="wsp-row-t">舰种</span>
-		{#each types as t (t.key)}
-			<button class="wsp-chip" data-on={type === t.key} onclick={() => pickType(t.key)}>
-				{t.key}<span class="wsp-n">{t.n}</span>
+		<button class="wsp-chip" data-on={type === "全部"} onclick={() => pickType("全部")}>
+			全部<span class="wsp-n">{ships.length}</span>
+		</button>
+		{#each types as [label, n] (label)}
+			<button class="wsp-chip" data-on={type === label} onclick={() => pickType(label)}>
+				{label}<span class="wsp-n">{n}</span>
 			</button>
+		{/each}
+	</div>
+
+	<div class="wsp-row">
+		<span class="wsp-row-t">国家</span>
+		<button class="wsp-chip" data-on={nation === "全部"} onclick={() => pickNation("全部")}>全部</button>
+		{#each nations as [label, n] (label)}
+			<button class="wsp-chip" data-on={nation === label} onclick={() => pickNation(label)}>
+				{label}<span class="wsp-n">{n}</span>
+			</button>
+		{/each}
+	</div>
+
+	<div class="wsp-row">
+		<span class="wsp-row-t">等级</span>
+		<button class="wsp-chip" data-on={tier === "全部"} onclick={() => pickTier("全部")}>全部</button>
+		{#each tiers as t (t)}
+			<button class="wsp-chip" data-on={tier === t} onclick={() => pickTier(t)}>T{t}</button>
 		{/each}
 	</div>
 	<div class="wsp-row">

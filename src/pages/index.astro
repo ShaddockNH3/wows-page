@@ -18,7 +18,8 @@ const kpis = [
 	{ label: "胜率", value: pct(p.winrate), unit: "" },
 	{ label: "场均伤害", value: num(p.avgDamage), unit: "" },
 	{ label: "最高伤害", value: num(p.maxDamage), unit: "" },
-	{ label: "PR", value: overall ? num(overall.pr) : "—", unit: overall ? overall.label : "", hi: true },
+	// 卡片窄，PR 的分档文字塞不进一行，只留数字
+	{ label: "PR", value: overall ? num(overall.pr) : "—", unit: "", hi: true },
 ];
 ---
 
