@@ -6,6 +6,10 @@
 
 线上地址：<https://shaddocknh3.github.io/wows-page/>
 
+一个页面装完：顶部是账号与五个指标（场次 / 胜率 / 场均伤害 / 最高伤害 / PR），中间四行筛选
+（舰种 / 国家 / 等级 / 排序），下面是逐船战绩，每页 15 条。舰船列表已经并进首页，旧的 `/ships`
+链接会重定向回来。
+
 ![账号总览与筛选](docs/preview-pr.jpg)
 
 ![舰船列表](docs/preview-ships.jpg)
@@ -171,13 +175,15 @@ GitHub Pages：`.github/workflows/deploy.yml` 已配好，Source 选 `GitHub Act
 
 | 想改什么 | 改哪里 |
 | --- | --- |
-| 站点标题、默认主题、博客地址 | `src/config.ts` |
+| 站点标题、默认配色、默认明暗、博客地址 | `src/config.ts` |
 | 两套配色的色相 | `src/config.ts` 的 `themes` |
 | 服务器、昵称 | `wows.config.json` |
 | 配色变量、圆角、间距 | `src/styles/theme.css` 顶部 |
 | 指标口径、要展示哪些数据 | `scripts/fetch-wows.mjs` |
 
-两套配色：`blog` 是玫粉（色相 360，与博客一致，默认），`wows` 是海军蓝（210）。导航栏的调色盘按钮切换，选择写进 `localStorage`，也能用 URL 参数指定：`?palette=wows`、`?theme=light`。
+两套配色：`blog` 是玫粉（色相 360，与博客一致，默认），`wows` 是海军蓝（210）。
+页面里没有调色盘按钮，也不读 `localStorage` —— 想要哪套就在 `src/config.ts` 改 `defaultTheme`，
+明暗改 `defaultMode`（默认 `light`）。临时看另一套可以用 URL 参数：`?palette=wows`、`?theme=dark`。
 
 首页的舰船列表支持四种条件叠加：舰种、国家、等级（T2–T10）、排序（场次 / 胜率 / 场均伤害 / PR）。
 
