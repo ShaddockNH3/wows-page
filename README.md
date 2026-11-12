@@ -13,6 +13,7 @@
 ## 目录
 
 - [快速开始](#快速开始)
+- [配置](#配置)
 - [命令](#命令)
 - [数据来源](#数据来源)
 - [PR 评分](#pr-评分)
@@ -29,7 +30,16 @@
 pnpm install
 ```
 
-改 `wows.config.json`，填服务器和游戏 ID：
+然后配置账号（见下一节）、抓数据、起服务：
+
+```bash
+pnpm fetch    # 会联网，产物写进 src/data/
+pnpm dev      # http://localhost:4321
+```
+
+## 配置
+
+要改的只有 `wows.config.json`：
 
 ```json
 {
@@ -39,14 +49,26 @@ pnpm install
 }
 ```
 
-`realm` 可选 `cn` / `asia` / `eu` / `na` / `ru`。`appId` 只有国际服要填，国服留空。
+| 字段 | 说明 |
+| --- | --- |
+| `realm` | 服务器：`cn` 国服、`asia` 亚服、`eu` 欧服、`na` 美服、`ru` 俄服 |
+| `nickname` | 游戏内昵称（不是账号 ID）；改名后要重抓一次 |
+| `appId` | 只有国际服要填，国服留空 |
 
-然后抓数据、起服务：
+也可以全走环境变量，优先级高于配置文件，适合 CI 或不想把昵称写进仓库：
 
 ```bash
-pnpm fetch    # 会联网，产物写进 src/data/
-pnpm dev      # http://localhost:4321
+WOWS_REALM=cn WOWS_NICKNAME=你的ID pnpm fetch
+WOWS_APP_ID=xxx WOWS_REALM=asia WOWS_NICKNAME=你的ID pnpm fetch
 ```
+
+`appId` 在 <https://developers.wargaming.net/applications/> 申请，免费；国服和国际服的 key 不通用。
+
+抓完写三个文件到 `src/data/`：`profile.json`（账号总览）、`ships.json`（逐船战绩）、`meta.json`（版本与抓取时间）。
+这三个文件要提交进仓库 —— 构建和 CI 都不联网，读的就是它们。
+
+每周一 02:00（UTC+8）会跑一次 `.github/workflows/update-data.yml`，数据有变化才提交。
+放进自己的仓库后，去 Settings → Secrets 加 `WOWS_NICKNAME`（国际服再加 `WOWS_APP_ID`）即可。
 
 ## 命令
 
@@ -152,14 +174,16 @@ GitHub Pages：`.github/workflows/deploy.yml` 已配好，Source 选 `GitHub Act
 | 站点标题、默认主题、博客地址 | `src/config.ts` |
 | 两套配色的色相 | `src/config.ts` 的 `themes` |
 | 服务器、昵称 | `wows.config.json` |
-| 配色变量、圆角、间距 | `src/styles/global.css` 顶部 |
+| 配色变量、圆角、间距 | `src/styles/theme.css` 顶部 |
 | 指标口径、要展示哪些数据 | `scripts/fetch-wows.mjs` |
 
 两套配色：`blog` 是玫粉（色相 360，与博客一致，默认），`wows` 是海军蓝（210）。导航栏的调色盘按钮切换，选择写进 `localStorage`，也能用 URL 参数指定：`?palette=wows`、`?theme=light`。
 
-舰船页支持四种条件叠加：中英文船名搜索、舰种、等级（Tier 2–11）、国籍。排序可以点表头，也可以用下拉。
+首页的舰船列表支持四种条件叠加：舰种、国家、等级（T2–T10）、排序（场次 / 胜率 / 场均伤害 / PR）。
 
-原生 `<select>` 的展开列表由系统绘制，CSS 改不动，深色页面里会弹一块系统灰，所以自己写了 `Select.astro`。
+组件里不写任何色值，全部走 `--primary`、`--card-bg`、`--line-divider`、`--deep-text`、`--content-meta`、
+`--btn-regular-bg`、`--radius-large`。`theme.css` 负责把这些名字映射到本项目的 `--wows-*` 色板，
+所以同一个 `WowsShips.svelte` 才能在博客和这里通用。
 
 ## 说明
 
